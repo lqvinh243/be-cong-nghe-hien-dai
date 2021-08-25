@@ -38,7 +38,7 @@ pipelines:
               (sudo docker network ls|grep webnet >/dev/null 2>&1 || sudo docker network create --driver bridge webnet) &&
               sudo docker run -i --network=webnet $DOCKER_IMAGE  ./node_modules/tsconfig-paths/register ./node_modules/typeorm/cli.js -f dist/configs/DbConfig migration:run &&
               (sudo docker stop $DOCKER_CONTAINER || true) && (sudo docker rm $DOCKER_CONTAINER || true) &&
-              sudo docker run -d --name $DOCKER_CONTAINER -p 3000:3000 -v /tmp/uploads:/tmp/uploads  --restart=always --log-opt max-size=10m --network=webnet $DOCKER_IMAGE npm start &&
+              sudo docker run -d --name $DOCKER_CONTAINER -p 3000:3000 -p 5000:5000 -v /tmp/uploads:/tmp/uploads  --restart=always --log-opt max-size=10m --network=webnet $DOCKER_IMAGE npm start &&
               sudo docker system prune -f &&
               exit;"
             - ssh $USER@$ADDRESS "sudo docker exec -i $DOCKER_CONTAINER ./healthcheck-pipeline.sh &&
