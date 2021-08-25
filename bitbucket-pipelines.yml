@@ -1,0 +1,45 @@
+# This is a sample build configuration for JavaScript.
+# Check our guides at https://confluence.atlassian.com/x/14UWN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: node:14.16.0-alpine
+
+options:
+  max-time: 10
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: Build image
+          script:
+            - apk add --no-cache git openssh
+            - git clone git@bitbucket.org:dylan-student/env.git && mv env/.env-cong-nghe-phan-mem .env && rm -rf env
+            - npm install && npm run build
+            - if [ $? -ne 0 ]; then exit 1; fi
+            - export DOCKER_IMAGE=lqvinh243/$BITBUCKET_REPO_SLUG
+            - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
+            - docker build -t $DOCKER_IMAGE .
+            - docker push $DOCKER_IMAGE
+          services:
+            - docker
+          caches:
+            - docker
+      - step:
+          name: Deploy to host
+          script:
+            - apk add --no-cache openssh
+            - export DOCKER_IMAGE=lqvinh243/$BITBUCKET_REPO_SLUG
+            - export DOCKER_CONTAINER=$BITBUCKET_REPO_SLUG
+            - ssh $USER@$ADDRESS "
+              sudo docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD &&
+              sudo docker pull $DOCKER_IMAGE &&
+              (sudo docker network ls|grep webnet >/dev/null 2>&1 || sudo docker network create --driver bridge webnet) &&
+              sudo docker run -i --network=webnet $DOCKER_IMAGE  ./node_modules/tsconfig-paths/register ./node_modules/typeorm/cli.js -f dist/configs/DbConfig migration:run &&
+              (sudo docker stop $DOCKER_CONTAINER || true) && (sudo docker rm $DOCKER_CONTAINER || true) &&
+              sudo docker run -d --name $DOCKER_CONTAINER -p 3000:3000 -v /tmp/uploads:/tmp/uploads  --restart=always --log-opt max-size=10m --network=webnet $DOCKER_IMAGE npm start &&
+              sudo docker system prune -f &&
+              exit;"
+            - ssh $USER@$ADDRESS "sudo docker exec -i $DOCKER_CONTAINER ./healthcheck-pipeline.sh &&
+              exit;"
