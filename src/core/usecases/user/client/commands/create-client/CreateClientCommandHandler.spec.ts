@@ -57,8 +57,8 @@ describe('Client usecases - Create client', () => {
         param.password = 'Nodecore@2';
         param.gender = GenderType.FEMALE;
         param.birthday = '1970-01-01';
-        param.phone = '0123456789';
-        param.address = '123 Abc';
+        param.phone = '01234456789';
+        param.address = '1234 Abc';
         param.locale = 'en-US';
     });
 

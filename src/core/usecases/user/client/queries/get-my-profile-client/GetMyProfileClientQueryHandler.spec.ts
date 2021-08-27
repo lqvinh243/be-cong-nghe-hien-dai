@@ -39,8 +39,8 @@ describe('Client usecases - Get my profile client', () => {
             avatar: 'avatar.png',
             gender: GenderType.FEMALE,
             birthday: '1970-01-01',
-            phone: '0123456789',
-            address: '123 Abc',
+            phone: '01234456789',
+            address: '1234 Abc',
             locale: 'en-US',
             activedAt: new Date(),
             archivedAt: new Date()

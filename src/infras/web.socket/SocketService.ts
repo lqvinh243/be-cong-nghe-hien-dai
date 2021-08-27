@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 import { DB_SOCKET_HOST, DB_SOCKET_PASSWORD, DB_SOCKET_PORT, DB_SOCKET_PREFIX } from '@configs/Configuration';
 import { getFilesSync } from '@utils/file';
 import { RedisClient } from 'redis';

@@ -73,7 +73,7 @@ describe('Authorization entity', () => {
     it('Set password with easy words', () => {
         try {
             const auth = new Auth();
-            auth.password = 'password123';
+            auth.password = 'password1234';
         }
         catch (error) {
             expect(error.message).to.eq(new SystemError(MessageError.PARAM_LEN_AT_LEAST_AND_MAX_SPECIAL, 'password', 6, 20).message);

@@ -1,4 +1,5 @@
 import { GenderType } from '@domain/enums/user/GenderType';
+import { RoleId } from '@domain/enums/user/RoleId';
 import { IsEmail, IsEnum, IsLocale, IsOptional, IsString } from 'class-validator';
 
 export class CreateClientCommandInput {
@@ -34,4 +35,6 @@ export class CreateClientCommandInput {
     @IsLocale()
     @IsOptional()
     locale: string;
+
+    roleId: RoleId;
 }

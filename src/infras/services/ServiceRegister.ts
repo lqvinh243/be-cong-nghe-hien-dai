@@ -7,3 +7,4 @@ import './payment/StripePaymentService';
 import './sms/SmsService';
 import './socket-emitter/SocketEmitterService';
 import './storage/StorageService';
+import './queue/QueueJobService';

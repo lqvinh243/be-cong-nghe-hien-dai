@@ -1,5 +1,5 @@
-import path from 'path';
-import moduleAlias from 'module-alias';
+import * as path from 'path';
+import * as moduleAlias from 'module-alias';
 /* Note: Do not import/require any file has used the path alias before execute 'addAliases' function below. */
 
 /**

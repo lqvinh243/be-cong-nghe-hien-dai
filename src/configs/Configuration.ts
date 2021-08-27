@@ -4,6 +4,10 @@ import dotenv from 'dotenv';
 import { Environment, LogProvider, MailProvider, NotificationProvider, SmsProvider, StorageProvider } from './Constants';
 dotenv.config();
 
+// AUTH
+
+export const AUTH_SECRET_KEY: string = process.env.AUTH_SECRET_KEY ?? '';
+
 // SYSTEM ENVIRONMENT
 
 const keyEnv = Object.keys(Environment).find(key => Environment[key] === process.env.NODE_ENV);

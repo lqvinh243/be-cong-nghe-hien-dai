@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 import { GenderType } from '@domain/enums/user/GenderType';
 import { RoleId } from '@domain/enums/user/RoleId';
 import { IAuth } from '@domain/interfaces/auth/IAuth';

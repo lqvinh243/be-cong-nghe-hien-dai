@@ -32,7 +32,7 @@ describe('Api authenticator', () => {
     });
 
     beforeEach(() => {
-        action.request.headers.authorization = 'Bearer ' + jwt.sign({}, '123456', {
+        action.request.headers.authorization = 'Bearer ' + jwt.sign({}, '1234456', {
             subject: v4(),
             expiresIn: 24 * 60 * 60,
             algorithm: 'HS256'

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import 'mocha';
 import { Server } from 'http';
-import path from 'path';
+import * as path from 'path';
 import { AccessDeniedError } from '@shared/exceptions/AccessDeniedError';
 import { InputValidationError } from '@shared/exceptions/InputValidationError';
 import { InternalServerError } from '@shared/exceptions/InternalServerError';

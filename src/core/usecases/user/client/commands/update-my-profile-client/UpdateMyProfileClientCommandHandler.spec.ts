@@ -38,8 +38,8 @@ describe('Client usecases - Update my profile client', () => {
         param.lastName = 'Test';
         param.gender = GenderType.FEMALE;
         param.birthday = '1970-01-01';
-        param.phone = '0123456789';
-        param.address = '123 Abc';
+        param.phone = '01234456789';
+        param.address = '1234 Abc';
         param.locale = 'en-US';
     });
 

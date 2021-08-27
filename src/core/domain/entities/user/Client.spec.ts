@@ -71,8 +71,8 @@ describe('Client entity', () => {
         const dataTest = {
             id: v4(),
             email: 'client.test@localhost.com',
-            phone: '0123456789',
-            address: '123 Abc',
+            phone: '01234456789',
+            address: '1234 Abc',
             locale: 'en-US',
             status: ClientStatus.ACTIVED,
             activeKey: crypto.randomBytes(32).toString('hex'),

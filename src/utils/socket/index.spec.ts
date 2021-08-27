@@ -24,12 +24,12 @@ describe('Utils - Socket', () => {
     });
 
     it('Send message', () => {
-        send(socket, 'test', '123', 'abc');
+        send(socket, 'test', '1234', 'abc');
         expect(true).to.eq(true);
     });
 
     it('Send message with sender', () => {
-        sendWithSender(socket, 'test', '123', 'abc');
+        sendWithSender(socket, 'test', '1234', 'abc');
         expect(true).to.eq(true);
     });
 

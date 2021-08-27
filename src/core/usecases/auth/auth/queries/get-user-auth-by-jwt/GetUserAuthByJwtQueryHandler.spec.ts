@@ -32,7 +32,7 @@ describe('Authorization usecases - Get user authorization by JWT', () => {
 
     beforeEach(() => {
         param = new GetUserAuthByJwtQueryInput();
-        param.token = jwt.sign({}, '123456', {
+        param.token = jwt.sign({}, '1234456', {
             subject: v4(),
             expiresIn: 24 * 60 * 60,
             algorithm: 'HS256'

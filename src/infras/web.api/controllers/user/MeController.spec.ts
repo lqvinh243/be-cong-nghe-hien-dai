@@ -3,7 +3,7 @@
 import 'reflect-metadata';
 import 'mocha';
 import { Server } from 'http';
-import path from 'path';
+import * as path from 'path';
 import { UnauthorizedError } from '@shared/exceptions/UnauthorizedError';
 import { mockAuthentication } from '@shared/test/MockAuthentication';
 import { mockWebApi } from '@shared/test/MockWebApi';

@@ -2,7 +2,7 @@ import { AuthType } from '@domain/enums/auth/AuthType';
 import { IAuth } from '@domain/interfaces/auth/IAuth';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
-import { hashMD5 } from '@utils/crypt';
+import * as bcrypt from 'bcrypt';
 import { isUUID } from 'class-validator';
 import { BaseEntity } from '../base/BaseEntity';
 import { User } from '../user/User';
@@ -80,10 +80,12 @@ export class Auth extends BaseEntity<string, IAuth> implements IAuth {
     /* Handlers */
 
     private _hashPassword(password: string): string {
-        return hashMD5(password, '$$');
+        const salt = bcrypt.genSaltSync();
+        return bcrypt.hashSync(password, salt);
     }
 
     comparePassword(password: string): boolean {
-        return this.password === this._hashPassword(password);
+        return bcrypt.compareSync(password, this.password);
+        // return this.password === this._hashPassword(password);
     }
 }

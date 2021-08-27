@@ -19,7 +19,7 @@ export class AuthDb extends BaseDbEntity<string, Auth> implements IAuth {
     @Index({ unique: true, where: BaseDbEntity.getIndexFilterDeletedColumn() })
     username: string;
 
-    @Column('varchar', { name: AUTH_SCHEMA.COLUMNS.PASSWORD, length: 32 })
+    @Column('varchar', { name: AUTH_SCHEMA.COLUMNS.PASSWORD, length: 200 })
     password: string;
 
     @Column('varchar', { name: AUTH_SCHEMA.COLUMNS.FORGOT_KEY, length: 64, nullable: true })

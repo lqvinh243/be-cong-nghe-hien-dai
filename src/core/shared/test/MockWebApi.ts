@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/ban-types */
 import { Server } from 'http';
-import path from 'path';
+import * as path from 'path';
 import { HttpServer } from '@infras/servers/http/HttpServer';
 import { ApiService } from '@infras/web.api/ApiService';
 import express from 'express';

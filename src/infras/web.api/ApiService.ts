@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Server } from 'http';
-import path from 'path';
+import * as path from 'path';
 import { ENVIRONMENT } from '@configs/Configuration';
 import { Environment } from '@configs/Constants';
 import { ILogService } from '@gateways/services/ILogService';

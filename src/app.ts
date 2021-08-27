@@ -6,6 +6,7 @@ import { API_PORT, ENABLE_API_SERVICE, ENABLE_SOCKET_SERVICE, ENABLE_WEB_SERVICE
 import { Environment } from '@configs/Constants';
 import { ILogService } from '@gateways/services/ILogService';
 import { ApiService } from '@infras/web.api/ApiService';
+import { QueueService } from '@infras/web.queue/QueueService';
 import { SocketService } from '@infras/web.socket/SocketService';
 import { WebService } from '@infras/web.ui/WebService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
@@ -19,6 +20,8 @@ const redisContext = Container.get<IRedisContext>('redis.context');
 const startApplication = async (): Promise<void> => {
     redisContext.createConnection();
     await dbContext.createConnection();
+
+    new QueueService().setup();
 
     if (ENABLE_API_SERVICE)
         ApiService.init(API_PORT);

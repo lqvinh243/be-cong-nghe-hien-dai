@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import 'reflect-metadata';
 import 'mocha';
-import path from 'path';
+import * as path from 'path';
 import { User } from '@domain/entities/user/User';
 import { IUserRepository } from '@gateways/repositories/user/IUserRepository';
 import { IStorageService } from '@gateways/services/IStorageService';
