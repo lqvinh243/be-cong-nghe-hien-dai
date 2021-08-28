@@ -62,6 +62,7 @@ export class CreateProductCommandHandler implements CommandHandler<CreateProduct
             productImage.size = file.size;
             productImage.ext = ext;
             productImage.url = imagePath;
+            productImage.isPrimary = true;
 
             const hasSucceed = await this._storageService.upload(imagePath, file.buffer, { mimetype: file.mimetype, size: file.size });
             // .finally(() => removeFile(file.path));
