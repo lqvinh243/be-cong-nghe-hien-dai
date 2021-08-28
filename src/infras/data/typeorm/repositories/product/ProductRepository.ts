@@ -37,10 +37,12 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
 
         switch (param.sortType) {
         case ProductSortType.PRICE_ASC:
-            query = query.orderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.price`, SortType.ASC);
+            query = query.orderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.priceNow`, SortType.ASC, 'NULLS LAST')
+                .addOrderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.bidPrice`, SortType.ASC, 'NULLS LAST');
             break;
         case ProductSortType.PRICE_DESC:
-            query = query.orderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.price`, SortType.DESC);
+            query = query.orderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.priceNow`, SortType.DESC, 'NULLS LAST')
+                .addOrderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.bidPrice`, SortType.DESC, 'NULLS LAST');
             break;
         case ProductSortType.EXPIRED_ASC:
             query = query.orderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.expiredAt`, SortType.ASC);
