@@ -93,7 +93,7 @@ export class ProductImage extends BaseEntity<string, IProductImage> implements I
 
     /* Handlers */
     static validateImageFile(file: Express.Multer.File): void {
-        const maxSize = 100 * 1024; // 100KB
+        const maxSize = 300 * 1024; // 100KB
         const formats = ['jpeg', 'jpg', 'png', 'gif'];
 
         const format = file.mimetype.replace('image/', '');
