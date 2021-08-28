@@ -17,8 +17,8 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
 
     set name(val: string) {
         val = val.trim();
-        if (val.length > 50)
-            throw new SystemError(MessageError.PARAM_LEN_LESS_OR_EQUAL, 'name', 50);
+        if (val.length > 200)
+            throw new SystemError(MessageError.PARAM_LEN_LESS_OR_EQUAL, 'name', 200);
 
         this.data.name = val;
     }
