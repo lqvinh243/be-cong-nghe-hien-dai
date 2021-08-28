@@ -1,4 +1,5 @@
 import { BidderProduct } from '@domain/entities/bidder-product/BidderProduct';
+import { Category } from '@domain/entities/category/Category';
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatistic } from '@domain/entities/statistic/ProductStatistic';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
@@ -32,6 +33,7 @@ export class BidderData {
         this.avatar = data.bidder && data.bidder.avatar;
     }
 }
+
 export class ProductStatictisData {
     @IsNumber()
     auctions: number;
@@ -40,6 +42,16 @@ export class ProductStatictisData {
         this.auctions = data.auctions;
     }
 }
+
+export class CategoryData {
+    @IsString()
+    name: string;
+
+    constructor(data: Category) {
+        this.name = data.name;
+    }
+}
+
 export class FindProductQueryData {
     @IsUUID()
     id: string;
@@ -65,7 +77,11 @@ export class FindProductQueryData {
     @IsDate()
     expiredAt: Date;
 
+    @IsString()
+    url: string | null;
+
     statistic: ProductStatictisData | null;
+    category: CategoryData | null;
     bidder: BidderData | null;
 
     constructor(data: Product) {
@@ -77,8 +93,10 @@ export class FindProductQueryData {
         this.bidPrice = data.bidPrice;
         this.stepPrice = data.stepPrice;
         this.expiredAt = data.expiredAt;
+        this.url = data.productImages && data.productImages.length ? data.productImages[0].url : null;
 
         this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
+        this.category = data.category && new CategoryData(data.category);
         this.bidder = null;
     }
 

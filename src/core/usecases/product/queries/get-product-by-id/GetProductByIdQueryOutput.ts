@@ -1,4 +1,5 @@
 import { BidderProduct } from '@domain/entities/bidder-product/BidderProduct';
+import { Category } from '@domain/entities/category/Category';
 import { Product } from '@domain/entities/product/Product';
 import { ProductDescription } from '@domain/entities/product/ProductDescription';
 import { ProductImage } from '@domain/entities/product/ProductImage';
@@ -6,14 +7,18 @@ import { Client } from '@domain/entities/user/Client';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { RefSchemaObject } from '@shared/decorators/RefSchema';
 import { DataResponse } from '@shared/usecase/DataResponse';
-import { IsDate, IsDateString, IsEnum, IsNumber, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsDate, IsDateString, IsEnum, IsNumber, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class ProductImageData {
     @IsString()
     url: string;
 
+    @IsBoolean()
+    isPrimary: boolean;
+
     constructor(data: ProductImage) {
         this.url = data.url;
+        this.isPrimary = data.isPrimary;
     }
 }
 
@@ -23,6 +28,15 @@ export class ProductDescriptionData {
 
     constructor(data: ProductDescription) {
         this.content = data.content;
+    }
+}
+
+export class CategoryData {
+    @IsString()
+    name: string;
+
+    constructor(data: Category) {
+        this.name = data.name;
     }
 }
 
@@ -109,6 +123,7 @@ export class GetProductByIdQueryData {
 
     seller: SellerData | null;
     bidder: BidderData | null;
+    category: CategoryData | null;
     productImages: ProductImageData[] | null;
     productDescription: ProductDescription[] | null;
 
@@ -124,6 +139,7 @@ export class GetProductByIdQueryData {
 
         this.seller = data.seller && new SellerData(data.seller);
         this.bidder = null;
+        this.category = data.category && new CategoryData(data.category);
         this.productImages = data.productImages && data.productImages.map(item => new ProductImageData(item));
         this.productDescription = data.productDescriptions && data.productDescriptions.map(item => new ProductDescription(item));
     }

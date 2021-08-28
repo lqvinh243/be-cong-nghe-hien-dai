@@ -1,5 +1,5 @@
 import { QueryPaginationRequest } from '@shared/usecase/QueryPaginationRequest';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export enum ProductSortType {
     EXPIRED_ASC = 'expired_asc',
@@ -18,4 +18,8 @@ export class FindProductQueryInput extends QueryPaginationRequest {
     @IsOptional()
     @IsEnum(ProductSortType)
     sortType: ProductSortType;
+
+    @IsOptional()
+    @IsUUID()
+    categoryId: string;
 }

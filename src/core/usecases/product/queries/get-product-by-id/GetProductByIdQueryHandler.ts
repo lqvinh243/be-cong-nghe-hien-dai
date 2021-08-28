@@ -1,4 +1,3 @@
-import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { MessageError } from '@shared/exceptions/message/MessageError';
@@ -20,10 +19,6 @@ export class GetProductByIdQueryHandler implements QueryHandler<GetProductByIdQu
         const product = await this._productRepository.getDetailById(param.id);
         if (!product)
             throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'product');
-        if (product.winnerId && product.winnerId !== param.userAuthId)
-            throw new SystemError(MessageError.ACCESS_DENIED);
-        if (!product.winnerId && product.status !== ProductStatus.PROCESSS)
-            throw new SystemError(MessageError.DATA_NOT_FOUND);
 
         const result = new GetProductByIdQueryOutput();
         result.setData(product);

@@ -23,8 +23,8 @@ export class UpdateStatusProductToCancelCommandHandler implements CommandHandler
     @Inject('db.context')
     private readonly _dbContext: IDbContext;
 
-    async handle(param: UpdateStatusProductToCancelCommandInput): Promise<UpdateStatusProductToCancelCommandOutput> {
-        const product = await this._productRepository.getById(param.id);
+    async handle(id: string, param: UpdateStatusProductToCancelCommandInput): Promise<UpdateStatusProductToCancelCommandOutput> {
+        const product = await this._productRepository.getById(id);
         if (!product || product.status !== ProductStatus.END)
             throw new SystemError(MessageError.DATA_NOT_FOUND);
         if (product.sellerId !== param.userAuthId)

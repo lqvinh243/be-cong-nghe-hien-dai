@@ -4,6 +4,7 @@ import { SortType } from '@shared/database/SortType';
 import { ProductSortType } from '@usecases/product/queries/find-product/FindProductQueryInput';
 import { Service } from 'typedi';
 import { ProductDb } from '../../entities/product/ProductDb';
+import { CATEGORY_SCHEMA } from '../../schemas/category/CategorySchema';
 import { PRODUCT_DESCRIPTION_SCHEMA } from '../../schemas/product/ProductDescriptionSchema';
 import { PRODUCT_IMAGE_SCHEMA } from '../../schemas/product/ProductImageSchema';
 import { PRODUCT_SCHEMA } from '../../schemas/product/ProductSchema';
@@ -19,11 +20,15 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
 
     override async findAndCount(param: FindProductFilter): Promise<[Product[], number]> {
         let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.PRODUCT_STATISTIC}`, PRODUCT_STATISTIC_SCHEMA.TABLE_NAME)
-            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_IMAGE}`, PRODUCT_IMAGE_SCHEMA.TABLE_NAME);
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_IMAGE}`, PRODUCT_IMAGE_SCHEMA.TABLE_NAME, `${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.ID} = ${PRODUCT_IMAGE_SCHEMA.TABLE_NAME}.${PRODUCT_IMAGE_SCHEMA.COLUMNS.PRODUCT_ID} AND ${PRODUCT_IMAGE_SCHEMA.TABLE_NAME}.${PRODUCT_IMAGE_SCHEMA.COLUMNS.IS_PRIMARY} = true`);
+
+        if (param.categoryId)
+            query = query.where(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.CATEGORY_ID} = :categoryId`, { categoryId: param.categoryId });
 
         if (param.statuses && param.statuses.length)
-            query = query.where(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.STATUS} IN (:...statuses)`, { statuses: param.statuses });
+            query = query.andWhere(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.STATUS} IN (:...statuses)`, { statuses: param.statuses });
 
         if (param.keyword) {
             const keyword = `%${param.keyword}%`;
@@ -63,6 +68,7 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
 
     async getDetailById(id: string): Promise<Product | null> {
         let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.SELLER}`, CLIENT_SCHEMA.TABLE_NAME)
             .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_DESCRIPTION}`, PRODUCT_DESCRIPTION_SCHEMA.TABLE_NAME)
             .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_IMAGE}`, PRODUCT_IMAGE_SCHEMA.TABLE_NAME)

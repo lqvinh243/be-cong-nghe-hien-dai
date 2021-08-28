@@ -5,6 +5,7 @@ import { IBaseRepository } from '@shared/database/interfaces/IBaseRepository';
 import { ProductSortType } from '@usecases/product/queries/find-product/FindProductQueryInput';
 
 export class FindProductFilter extends DbPaginationFilter {
+    categoryId: string;
     statuses: ProductStatus[];
     keyword: string | null;
     sortType: ProductSortType;

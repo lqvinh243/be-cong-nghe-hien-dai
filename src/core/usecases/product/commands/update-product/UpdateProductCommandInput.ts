@@ -2,6 +2,7 @@ import { IsDateString, IsNumber, IsOptional, IsString, IsUUID } from 'class-vali
 
 export class UpdateProductCommandInput {
     userAuthId: string;
+
     @IsString()
     name: string | null;
 
