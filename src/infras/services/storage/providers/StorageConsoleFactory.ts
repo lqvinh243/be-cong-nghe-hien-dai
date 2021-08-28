@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { STORAGE_URL } from '@configs/Configuration';
+import { STORAGE_URL_LIVE } from '@configs/Configuration';
 import { ILogService } from '@gateways/services/ILogService';
 import Container from 'typedi';
 import { IBucketItem } from '../interfaces/IBucketItem';
@@ -46,7 +46,7 @@ export class StorageConsoleFactory implements IStorageProvider {
     }
 
     mapUrl(bucketName: string, urlPath: string): string {
-        return `${STORAGE_URL}/${bucketName}/${urlPath}`;
+        return `${STORAGE_URL_LIVE}/${bucketName}/${urlPath}`;
     }
 
     async upload(bucketName: string, objectName: string, _stream: string | Readable | Buffer, options?: IStorageProviderUploadOption): Promise<boolean> {

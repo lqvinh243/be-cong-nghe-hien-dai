@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { Readable } from 'stream';
-import { STORAGE_URL } from '@configs/Configuration';
+import { STORAGE_URL_LIVE } from '@configs/Configuration';
 import S3 from 'aws-sdk/clients/s3';
 import { IBucketItem } from '../interfaces/IBucketItem';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
@@ -112,7 +112,7 @@ export class AwsS3Factory implements IStorageProvider {
     }
 
     mapUrl(bucketName: string, urlPath: string): string {
-        return `${STORAGE_URL}/${bucketName}/${urlPath}`;
+        return `${STORAGE_URL_LIVE}/${bucketName}/${urlPath}`;
     }
 
     upload(bucketName: string, objectName: string, stream: string | Readable | Buffer, options?: IStorageProviderUploadOption): Promise<boolean> {

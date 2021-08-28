@@ -72,6 +72,7 @@ export const STORAGE_PROVIDER: number = process.env.STORAGE_PROVIDER ? Number(pr
 export const STORAGE_URL: string = process.env.STORAGE_URL ?? 'http://localhost';
 export const STORAGE_UPLOAD_DIR: string = process.env.STORAGE_UPLOAD_DIR ?? 'uploads';
 export const STORAGE_BUCKET_NAME: string = process.env.STORAGE_BUCKET_NAME ?? '';
+export const STORAGE_URL_LIVE: string = process.env.STORAGE_URL_LIVE ?? '';
 
 export const MINIO_HOST: string = process.env.MINIO_HOST ?? '';
 export const MINIO_PORT: number = process.env.MINIO_PORT ? Number(process.env.MINIO_PORT) : 0;
