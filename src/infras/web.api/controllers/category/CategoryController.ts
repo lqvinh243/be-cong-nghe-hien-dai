@@ -1,3 +1,4 @@
+import { RoleId } from '@domain/enums/user/RoleId';
 import { CreateCategoryCommandHandler } from '@usecases/category/commands/create-category/CreateCategoryCommandHandler';
 import { CreateCategoryCommandInput } from '@usecases/category/commands/create-category/CreateCategoryCommandInput';
 import { CreateCategoryCommandOutput } from '@usecases/category/commands/create-category/CreateCategoryCommandOutput';
@@ -11,12 +12,12 @@ import { FindCategoryQueryInput } from '@usecases/category/queries/find-category
 import { FindCategoryQueryOutput } from '@usecases/category/queries/find-category/FindCategoryQueryOutput';
 import { GetCategoryByIdQueryHandler } from '@usecases/category/queries/get-category-by-id/GetCategoryByIdQueryHandler';
 import { GetCategoryByIdQueryOutput } from '@usecases/category/queries/get-category-by-id/GetCategoryByIdQueryOutput';
-import { Body, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
+import { Authorized, Body, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
 @Service()
-@JsonController('/v1/categorys')
+@JsonController('/v1/categories')
 export class CategoryController {
     constructor(
         private readonly _findCategoryQueryHandler: FindCategoryQueryHandler,
@@ -43,6 +44,7 @@ export class CategoryController {
     @Post('/')
     @OpenAPI({ summary: 'Create category' })
     @ResponseSchema(CreateCategoryCommandOutput)
+    @Authorized(RoleId.SUPER_ADMIN)
     async create(@Body() param: CreateCategoryCommandInput): Promise<CreateCategoryCommandOutput> {
         return await this._createCategoryCommandHandler.handle(param);
     }
@@ -50,6 +52,7 @@ export class CategoryController {
     @Put('/:id([0-9a-f-]{36})')
     @OpenAPI({ summary: 'Update category' })
     @ResponseSchema(UpdateCategoryCommandOutput)
+    @Authorized(RoleId.SUPER_ADMIN)
     async update(@Param('id') id: string, @Body() param: UpdateCategoryCommandInput): Promise<UpdateCategoryCommandOutput> {
         return await this._updateCategoryCommandHandler.handle(id, param);
     }
@@ -57,6 +60,7 @@ export class CategoryController {
     @Delete('/:id([0-9a-f-]{36})')
     @OpenAPI({ summary: 'Delete category' })
     @ResponseSchema(DeleteCategoryCommandOutput)
+    @Authorized(RoleId.SUPER_ADMIN)
     async delete(@Param('id') id: string): Promise<DeleteCategoryCommandOutput> {
         return await this._deleteCategoryCommandHandler.handle(id);
     }
