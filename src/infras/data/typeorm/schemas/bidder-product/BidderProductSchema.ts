@@ -11,7 +11,8 @@ export const BIDDER_PRODUCT_SCHEMA = {
     },
     RELATED_ONE: {
         // The field name that we're defined into entity.
-
+        BIDDER: 'bidder',
+        PRODUCT: 'product'
     },
     RELATED_MANY: {
         // The field name that we're defined into entity.

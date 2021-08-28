@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateProductCommandInput {
     userAuthId: string;
@@ -6,13 +6,13 @@ export class CreateProductCommandInput {
     @IsString()
     name: string;
 
-    @IsDate()
     expiredAt: Date;
 
     @IsUUID()
     categoryId: string;
 
     @IsNumber()
+    @IsOptional()
     bidPrice: number;
 
     @IsNumber()

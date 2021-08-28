@@ -34,7 +34,7 @@ export class LoginByEmailQueryHandler extends CommandHandler<LoginByEmailQueryIn
         if (!auth || !auth.comparePassword(param.password) || !auth.user)
             throw new SystemError(MessageError.PARAM_INCORRECT, 'email or password');
 
-        if (auth.user.roleId === RoleId.BIDDER) {
+        if ([RoleId.BIDDER, RoleId.SELLER].includes(auth.user.roleId as RoleId)) {
             const client = await this._clientRepository.getById(auth.userId);
             if (!client)
                 throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'account');

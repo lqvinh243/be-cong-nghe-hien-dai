@@ -67,7 +67,7 @@ export class ClientController {
     }
 
     @Get('/my-profile')
-    @Authorized(RoleId.BIDDER)
+    @Authorized(RoleId.SELLER)
     @OpenAPI({ summary: 'Get my profile information' })
     @ResponseSchema(GetMyProfileClientQueryOutput)
     async getMyProfile(@CurrentUser() userAuth: UserAuthenticated): Promise<GetMyProfileClientQueryOutput> {

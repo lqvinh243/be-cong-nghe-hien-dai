@@ -9,6 +9,8 @@ export class FindProductFeedbackFilter extends DbPaginationFilter {
 export interface IProductFeedbackRepository extends IBaseRepository<string, ProductFeedback> {
     findAndCount(param: FindProductFeedbackFilter): Promise<[ProductFeedback[], number]>;
 
-    checkNameExist(name: string): Promise<boolean>;
-    checkNameExist(name: string, excludeId: string): Promise<boolean>;
+    getByReceiverId(receverId: string): Promise<{up: number, down: number}>
+
+    checkDataExistAndGet(ownerId: string, receiverId: string, productId: string): Promise<ProductFeedback | null>
+
 }

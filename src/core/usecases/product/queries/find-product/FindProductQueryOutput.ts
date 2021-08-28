@@ -1,9 +1,45 @@
+import { BidderProduct } from '@domain/entities/bidder-product/BidderProduct';
 import { Product } from '@domain/entities/product/Product';
+import { ProductStatistic } from '@domain/entities/statistic/ProductStatistic';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { RefSchemaArray } from '@shared/decorators/RefSchema';
 import { PaginationResponse } from '@shared/usecase/PaginationResponse';
-import { IsArray, IsDate, IsDateString, IsEnum, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsDate, IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
+export class BidderData {
+    @IsString()
+    firstName: string | null;
+
+    @IsString()
+    @IsOptional()
+    lastName: string | null;
+
+    @IsString()
+    email: string | null;
+
+    @IsString()
+    @IsOptional()
+    avatar: string | null;
+
+    @IsNumber()
+    price: number;
+
+    constructor(data: BidderProduct) {
+        this.price = data.price;
+        this.firstName = data.bidder && data.bidder.firstName;
+        this.lastName = data.bidder && data.bidder.lastName;
+        this.email = data.bidder && data.bidder.email;
+        this.avatar = data.bidder && data.bidder.avatar;
+    }
+}
+export class ProductStatictisData {
+    @IsNumber()
+    auctions: number;
+
+    constructor(data: ProductStatistic) {
+        this.auctions = data.auctions;
+    }
+}
 export class FindProductQueryData {
     @IsUUID()
     id: string;
@@ -21,13 +57,16 @@ export class FindProductQueryData {
     priceNow: number;
 
     @IsNumber()
-    bidPrice: number;
+    bidPrice: number | null;
 
     @IsNumber()
     stepPrice: number;
 
     @IsDate()
     expiredAt: Date;
+
+    statistic: ProductStatictisData | null;
+    bidder: BidderData | null;
 
     constructor(data: Product) {
         this.id = data.id;
@@ -38,6 +77,13 @@ export class FindProductQueryData {
         this.bidPrice = data.bidPrice;
         this.stepPrice = data.stepPrice;
         this.expiredAt = data.expiredAt;
+
+        this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
+        this.bidder = null;
+    }
+
+    setBidder(data: BidderProduct): void {
+        this.bidder = new BidderData(data);
     }
 }
 

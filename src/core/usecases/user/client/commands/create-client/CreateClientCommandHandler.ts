@@ -1,6 +1,5 @@
 import { Client } from '@domain/entities/user/Client';
 import { ClientStatus } from '@domain/enums/user/ClientStatus';
-import { RoleId } from '@domain/enums/user/RoleId';
 import { IClient } from '@domain/interfaces/user/IClient';
 import { IAuthRepository } from '@gateways/repositories/auth/IAuthRepository';
 import { IClientRepository } from '@gateways/repositories/user/IClientRepository';
@@ -38,7 +37,7 @@ export class CreateClientCommandHandler extends CommandHandler<CreateClientComma
         await validateDataInput(param);
 
         const data = new Client({ id: v4() } as IClient);
-        data.roleId = RoleId.BIDDER;
+        data.roleId = param.roleId;
         data.status = ClientStatus.ACTIVED;
         data.firstName = param.firstName;
         data.lastName = param.lastName;

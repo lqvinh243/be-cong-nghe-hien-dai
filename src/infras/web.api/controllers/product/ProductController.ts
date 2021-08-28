@@ -1,3 +1,5 @@
+import { RoleId } from '@domain/enums/user/RoleId';
+import { UserAuthenticated } from '@shared/UserAuthenticated';
 import { CreateProductCommandHandler } from '@usecases/product/commands/create-product/CreateProductCommandHandler';
 import { CreateProductCommandInput } from '@usecases/product/commands/create-product/CreateProductCommandInput';
 import { CreateProductCommandOutput } from '@usecases/product/commands/create-product/CreateProductCommandOutput';
@@ -10,8 +12,12 @@ import { FindProductQueryHandler } from '@usecases/product/queries/find-product/
 import { FindProductQueryInput } from '@usecases/product/queries/find-product/FindProductQueryInput';
 import { FindProductQueryOutput } from '@usecases/product/queries/find-product/FindProductQueryOutput';
 import { GetProductByIdQueryHandler } from '@usecases/product/queries/get-product-by-id/GetProductByIdQueryHandler';
+import { GetProductByIdQueryInput } from '@usecases/product/queries/get-product-by-id/GetProductByIdQueryInput';
 import { GetProductByIdQueryOutput } from '@usecases/product/queries/get-product-by-id/GetProductByIdQueryOutput';
-import { Body, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
+import { GetProductBySellerQueryHandler } from '@usecases/product/queries/get-product-by-seller/GetProductBySellerQueryHandler';
+import { GetProductBySellerQueryInput } from '@usecases/product/queries/get-product-by-seller/GetProductBySellerQueryInput';
+import { GetProductBySellerQueryOutput } from '@usecases/product/queries/get-product-by-seller/GetProductBySellerQueryOutput';
+import { Authorized, Body, CurrentUser, Delete, Get, JsonController, Param, Params, Post, Put, QueryParams, UploadedFile } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -21,6 +27,7 @@ export class ProductController {
     constructor(
         private readonly _findProductQueryHandler: FindProductQueryHandler,
         private readonly _getProductByIdQueryHandler: GetProductByIdQueryHandler,
+        private readonly _getProductBySellerQueryHandler: GetProductBySellerQueryHandler,
         private readonly _createProductCommandHandler: CreateProductCommandHandler,
         private readonly _updateProductCommandHandler: UpdateProductCommandHandler,
         private readonly _deleteProductCommandHandler: DeleteProductCommandHandler
@@ -36,14 +43,28 @@ export class ProductController {
     @Get('/:id([0-9a-f-]{36})')
     @OpenAPI({ summary: 'Get product by id' })
     @ResponseSchema(GetProductByIdQueryOutput)
-    async getById(@Param('id') id: string): Promise<GetProductByIdQueryOutput> {
-        return await this._getProductByIdQueryHandler.handle(id);
+    @Authorized([RoleId.BIDDER])
+    async getById(@Params() param: GetProductByIdQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<GetProductByIdQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._getProductByIdQueryHandler.handle(param);
+    }
+
+    @Get('/:id([0-9a-f-]{36})/seller')
+    @OpenAPI({ summary: 'Get product by id' })
+    @ResponseSchema(GetProductByIdQueryOutput)
+    @Authorized([RoleId.SELLER])
+    async getBySeller(@Params() param: GetProductBySellerQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<GetProductBySellerQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._getProductBySellerQueryHandler.handle(param);
     }
 
     @Post('/')
     @OpenAPI({ summary: 'Create product' })
     @ResponseSchema(CreateProductCommandOutput)
-    async create(@Body() param: CreateProductCommandInput): Promise<CreateProductCommandOutput> {
+    @Authorized([RoleId.SELLER])
+    async create(@UploadedFile('file', { required: true }) file: Express.Multer.File, @Body() param: CreateProductCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateProductCommandOutput> {
+        param.userAuthId = userAuth.userId;
+        param.file = file;
         return await this._createProductCommandHandler.handle(param);
     }
 

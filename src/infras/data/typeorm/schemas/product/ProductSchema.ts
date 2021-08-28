@@ -7,6 +7,7 @@ export const PRODUCT_SCHEMA = {
         ID: 'id',
         NAME: 'name',
         SELLER_ID: 'seller_id',
+        WINNER_ID: 'winner_id',
         CATEGORY_ID: 'category_id',
         STATUS: 'status',
         PRICE_NOW: 'price_now',
@@ -17,10 +18,14 @@ export const PRODUCT_SCHEMA = {
     },
     RELATED_ONE: {
         // The field name that we're defined into entity.
-        CATEGORY: 'category'
+        CATEGORY: 'category',
+        SELLER: 'seller',
+        WINNER: 'winner',
+        PRODUCT_STATISTIC: 'productStatistic'
     },
     RELATED_MANY: {
         // The field name that we're defined into entity.
-
+        PRODUCT_IMAGE: 'productImages',
+        PRODUCT_DESCRIPTION: 'productDescriptions'
     }
 };

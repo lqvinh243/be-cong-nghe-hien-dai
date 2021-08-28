@@ -8,7 +8,6 @@ import { ILogService } from '@gateways/services/ILogService';
 import { ApiService } from '@infras/web.api/ApiService';
 import { QueueService } from '@infras/web.queue/QueueService';
 import { SocketService } from '@infras/web.socket/SocketService';
-import { WebService } from '@infras/web.ui/WebService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
 import { IRedisContext } from '@shared/database/interfaces/IRedisContext';
 import { Container } from 'typedi';
@@ -25,9 +24,6 @@ const startApplication = async (): Promise<void> => {
 
     if (ENABLE_API_SERVICE)
         ApiService.init(API_PORT);
-
-    if (ENABLE_WEB_SERVICE)
-        WebService.init(WEB_PORT);
 
     if (ENABLE_SOCKET_SERVICE)
         SocketService.init(SOCKET_PORT);

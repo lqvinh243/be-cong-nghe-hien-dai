@@ -4,7 +4,6 @@ import { IStorageService } from '@gateways/services/IStorageService';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
-import { validateDataInput } from '@utils/validator';
 import * as mime from 'mime-types';
 import { Inject, Service } from 'typedi';
 import { CreateProductImageCommandInput } from './CreateProductImageCommandInput';
@@ -19,8 +18,6 @@ export class CreateProductImageCommandHandler implements CommandHandler<CreatePr
     private readonly _storageService: IStorageService;
 
     async handle(param: CreateProductImageCommandInput): Promise<CreateProductImageCommandOutput> {
-        await validateDataInput(param);
-
         for (const file of param.files) {
             const ext = mime.extension(file.mimetype);
             if (!ext)
@@ -35,7 +32,7 @@ export class CreateProductImageCommandHandler implements CommandHandler<CreatePr
             data.ext = ext;
             data.url = imagePath;
 
-            const hasSucceed = await this._storageService.upload(imagePath, file.path, { mimetype: file.mimetype, size: file.size });
+            const hasSucceed = await this._storageService.upload(imagePath, file.buffer, { mimetype: file.mimetype, size: file.size });
             // .finally(() => removeFile(file.path));
             if (!hasSucceed)
                 throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');

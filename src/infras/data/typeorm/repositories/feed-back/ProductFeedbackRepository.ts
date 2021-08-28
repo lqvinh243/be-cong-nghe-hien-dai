@@ -1,4 +1,5 @@
 import { ProductFeedback } from '@domain/entities/feed-back/ProductFeedback';
+import { ProductFeedbackType } from '@domain/enums/feed-back/ProductFeedbackType';
 import { FindProductFeedbackFilter, IProductFeedbackRepository } from '@gateways/repositories/feed-back/IProductFeedbackRepository';
 import { Service } from 'typedi';
 import { ProductFeedbackDb } from '../../entities/feed-back/ProductFeedbackDb';
@@ -27,14 +28,26 @@ export class ProductFeedbackRepository extends BaseRepository<string, ProductFee
         return [list.map(item => item.toEntity()), count];
     }
 
-    async checkNameExist(name: string, excludeId?: string): Promise<boolean> {
-        let query = this.repository.createQueryBuilder(PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME)
-            .where(`lower(${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.CONTENT}) = lower(:name)`, { name });
+    async getByReceiverId(receverId: string): Promise<{ up: number, down: number; }> {
+        const query = this.repository.createQueryBuilder(PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME)
+            .select(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.TYPE}`, 'type')
+            .addSelect('COUNT(*)', 'total')
+            .where(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.RECEIVER_ID} = :receiverId`, { receverId })
+            .groupBy(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.TYPE}`);
 
-        if (excludeId)
-            query = query.andWhere(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.ID} != :id`, { id: excludeId });
+        const result = await query.getRawMany<{type: ProductFeedbackType, total: string}>();
+        const upItem = result.find(item => item.type === ProductFeedbackType.UP);
+        const downItem = result.find(item => item.type === ProductFeedbackType.DOWM);
+        return { up: upItem ? parseFloat(upItem.total) : 0, down: downItem ? parseFloat(downItem.total) : 0 };
+    }
+
+    async checkDataExistAndGet(ownerId: string, receiverId: string, productId: string): Promise<ProductFeedback | null> {
+        const query = this.repository.createQueryBuilder(PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME)
+            .where(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.OWNER_ID} = :ownerId`, { ownerId })
+            .andWhere(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.RECEIVER_ID} = :receiverId`, { receiverId })
+            .andWhere(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.PRODUCT_ID} = :productId`, { productId });
 
         const result = await query.getOne();
-        return !!result;
+        return result ? result.toEntity() : null;
     }
 }

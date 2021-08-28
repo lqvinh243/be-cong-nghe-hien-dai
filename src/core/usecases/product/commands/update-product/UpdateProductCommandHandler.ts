@@ -14,15 +14,23 @@ export class UpdateProductCommandHandler implements CommandHandler<UpdateProduct
 
     async handle(id: string, param: UpdateProductCommandInput): Promise<UpdateProductCommandOutput> {
         const data = new Product();
-        data.name = param.name;
+        if (param.name)
+            data.name = param.name;
+        if (param.categoryId)
+            data.categoryId = param.categoryId;
+        if (param.bidPrice)
+            data.bidPrice = param.bidPrice;
+        if (param.stepPrice)
+            data.stepPrice = param.stepPrice;
+        if (param.expiredAt)
+            data.expiredAt = new Date(param.expiredAt);
 
         const product = await this._productRepository.getById(id);
         if (!product)
             throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'product');
 
-        const isExist = await this._productRepository.checkNameExist(data.name, id);
-        if (isExist)
-            throw new SystemError(MessageError.PARAM_EXISTED, 'name');
+        if (product.sellerId !== param.userAuthId)
+            throw new SystemError(MessageError.ACCESS_DENIED);
 
         const hasSucceed = await this._productRepository.update(id, data);
         const result = new UpdateProductCommandOutput();

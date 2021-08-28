@@ -3,8 +3,11 @@ import { IProduct } from '@domain/interfaces/product/IProduct';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import * as validator from 'class-validator';
+import { ProductDescription } from './ProductDescription';
+import { ProductImage } from './ProductImage';
 import { BaseEntity } from '../base/BaseEntity';
 import { Category } from '../category/Category';
+import { ProductStatistic } from '../statistic/ProductStatistic';
 import { Client } from '../user/Client';
 
 export class Product extends BaseEntity<string, IProduct> implements IProduct {
@@ -33,6 +36,19 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
         this.data.sellerId = val;
     }
 
+    get winnerId(): string | null {
+        return this.data.winnerId;
+    }
+
+    set winnerId(val: string | null) {
+        if (!val)
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'winner');
+        if (!validator.isUUID(val))
+            throw new SystemError(MessageError.PARAM_INVALID, 'winner');
+
+        this.data.winnerId = val;
+    }
+
     get categoryId(): string {
         return this.data.categoryId;
     }
@@ -52,9 +68,9 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
 
     set status(val: ProductStatus) {
         if (!val)
-            throw new SystemError(MessageError.PARAM_REQUIRED, 'seller');
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'status');
         if (!validator.isEnum(val, ProductStatus))
-            throw new SystemError(MessageError.PARAM_INVALID, 'seller');
+            throw new SystemError(MessageError.PARAM_INVALID, 'status');
 
         this.data.status = val;
     }
@@ -64,23 +80,27 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
     }
 
     set priceNow(val: number) {
-        if (!val)
+        if (validator.isEmpty(val))
             throw new SystemError(MessageError.PARAM_REQUIRED, 'priceNow');
-        if (!validator.isNumber(val) || val <= 0)
+        if (validator.isNumberString(val))
+            val = parseFloat(val.toString());
+        if (!validator.isNumber(val) || val < 0)
             throw new SystemError(MessageError.PARAM_INVALID, 'priceNow');
 
         this.data.priceNow = val;
     }
 
-    get bidPrice(): number {
+    get bidPrice(): number | null {
         return this.data.bidPrice;
     }
 
-    set bidPrice(val: number) {
-        if (!val)
-            throw new SystemError(MessageError.PARAM_REQUIRED, 'bidPrice');
-        if (!validator.isNumber(val) || val <= 0)
-            throw new SystemError(MessageError.PARAM_INVALID, 'bidPrice');
+    set bidPrice(val: number | null) {
+        if (val) {
+            if (validator.isNumberString(val))
+                val = parseFloat(val.toString());
+            if (!validator.isNumber(val) || val < 0)
+                throw new SystemError(MessageError.PARAM_INVALID, 'bidPrice');
+        }
 
         this.data.bidPrice = val;
     }
@@ -92,6 +112,8 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
     set stepPrice(val: number) {
         if (validator.isEmpty(val))
             throw new SystemError(MessageError.PARAM_REQUIRED, 'stepPrice');
+        if (validator.isNumberString(val))
+            val = parseFloat(val.toString());
         if (!validator.isNumber(val) || val <= 0)
             throw new SystemError(MessageError.PARAM_INVALID, 'stepPrice');
 
@@ -106,7 +128,10 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
         if (!val)
             throw new SystemError(MessageError.PARAM_REQUIRED, 'expiredAt');
 
-        if (val && validator.isDate(val))
+        if (validator.isDateString(val))
+            val = new Date(val);
+
+        if (!validator.isDate(val))
             throw new SystemError(MessageError.PARAM_INVALID, 'expiredAt');
 
         this.data.expiredAt = val;
@@ -131,8 +156,24 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
         return this.data.seller && new Client(this.data.seller);
     }
 
+    get winner(): Client | null {
+        return this.data.winner && new Client(this.data.winner);
+    }
+
     get category(): Category | null {
         return this.data.category && new Category(this.data.category);
+    }
+
+    get productStatistic(): ProductStatistic | null {
+        return this.data.productStatistic && new ProductStatistic(this.data.productStatistic);
+    }
+
+    get productImages(): ProductImage[] | null {
+        return this.data.productImages && this.data.productImages.map(productImage => new ProductImage(productImage));
+    }
+
+    get productDescriptions(): ProductDescription[] | null {
+        return this.data.productDescriptions && this.data.productDescriptions.map(productDescription => new ProductDescription(productDescription));
     }
 
     /* Handlers */

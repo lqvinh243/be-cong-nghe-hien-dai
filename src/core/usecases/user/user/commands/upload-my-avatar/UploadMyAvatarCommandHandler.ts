@@ -4,7 +4,7 @@ import { IStorageService } from '@gateways/services/IStorageService';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
-import { removeFile } from '@utils/file';
+// import { removeFile } from '@utils/file';
 import { validateDataInput } from '@utils/validator';
 import mime from 'mime-types';
 import { Inject, Service } from 'typedi';
@@ -36,8 +36,8 @@ export class UploadMyAvatarCommandHandler extends CommandHandler<UploadMyAvatarC
         if (!user)
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
-        let hasSucceed = await this._storageService.upload(avatarPath, file.path, { mimetype: file.mimetype, size: file.size })
-            .finally(() => removeFile(file.path));
+        let hasSucceed = await this._storageService.upload(avatarPath, file.buffer, { mimetype: file.mimetype, size: file.size });
+        // .finally(() => removeFile(file.path));
         if (!hasSucceed)
             throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');
 
