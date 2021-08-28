@@ -1,5 +1,6 @@
 import { BidderProduct } from '@domain/entities/bidder-product/BidderProduct';
 import { BidderProductStep } from '@domain/entities/bidder-product/BidderProductStep';
+import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IBidderProductStepRepository } from '@gateways/repositories/bidder-product/IBidderProductStepRepository';
@@ -53,7 +54,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                     throw new SystemError(MessageError.OTHER, 'You cannot bid this product!');
             }
         }
-        if (data.price + product.stepPrice < product.priceNow)
+        if (data.price - product.stepPrice < product.priceNow)
             throw new SystemError(MessageError.OTHER, 'Price must be bigger old price and step price!');
 
         const bidderProduct = await this._bidderProductRepository.checkDataExistAndGet(data.bidderId, data.productId);
@@ -74,6 +75,9 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
             bidderProductStep.price = data.price;
 
             await this._bidderProductStepRepository.create(bidderProductStep, queryRunner);
+            const productData = new Product();
+            productData.priceNow = data.price;
+            await this._productRepository.update(product.id, productData);
 
             return id;
         });
