@@ -15,7 +15,8 @@ export class CategoryRepository extends BaseRepository<string, Category, Categor
         let query = this.repository.createQueryBuilder(CATEGORY_SCHEMA.TABLE_NAME);
 
         if (param.parentId)
-            query = query.andWhere(`${CATEGORY_SCHEMA.TABLE_NAME}.${CATEGORY_SCHEMA.COLUMNS.PARENT_ID} != :parentId`, { parentId: param.parentId });
+            query = query.andWhere(`${CATEGORY_SCHEMA.TABLE_NAME}.${CATEGORY_SCHEMA.COLUMNS.PARENT_ID} = :parentId`, { parentId: param.parentId });
+        else query = query.andWhere(`${CATEGORY_SCHEMA.TABLE_NAME}.${CATEGORY_SCHEMA.COLUMNS.PARENT_ID} IS NULL`);
 
         if (param.keyword) {
             const keyword = `%${param.keyword}%`;

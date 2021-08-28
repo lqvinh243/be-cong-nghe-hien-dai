@@ -13,10 +13,11 @@ export class FindCategoryQueryHandler implements QueryHandler<FindCategoryQueryI
         const filter = new FindCategoryFilter();
         filter.setPagination(param.skip, param.limit);
         filter.keyword = param.keyword;
+        filter.parentId = param.parentId;
 
-        const [categorys, count] = await this._categoryRepository.findAndCount(filter);
+        const [categories, count] = await this._categoryRepository.findAndCount(filter);
         const result = new FindCategoryQueryOutput();
-        result.setData(categorys);
+        result.setData(categories);
         result.setPagination(count, param.skip, param.limit);
         return result;
     }
