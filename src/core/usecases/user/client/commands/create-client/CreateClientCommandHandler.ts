@@ -10,7 +10,6 @@ import { CommandHandler } from '@shared/usecase/CommandHandler';
 import { CreateAuthByEmailCommandHandler } from '@usecases/auth/auth/commands/create-auth-by-email/CreateAuthByEmailCommandHandler';
 import { CreateAuthByEmailCommandInput } from '@usecases/auth/auth/commands/create-auth-by-email/CreateAuthByEmailCommandInput';
 import { CheckEmailExistQueryHandler } from '@usecases/user/user/queries/check-email-exist/CheckEmailExistQueryHandler';
-import { validateDataInput } from '@utils/validator';
 import { Inject, Service } from 'typedi';
 import { v4 } from 'uuid';
 import { CreateClientCommandInput } from './CreateClientCommandInput';
@@ -34,8 +33,6 @@ export class CreateClientCommandHandler extends CommandHandler<CreateClientComma
     private readonly _authRepository: IAuthRepository;
 
     async handle(param: CreateClientCommandInput): Promise<CreateClientCommandOutput> {
-        await validateDataInput(param);
-
         const data = new Client({ id: v4() } as IClient);
         data.roleId = param.roleId;
         data.status = ClientStatus.ACTIVED;
