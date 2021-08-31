@@ -5,6 +5,7 @@ import { SortType } from '@shared/database/SortType';
 import { Service } from 'typedi';
 import { UpgradeRequestDb } from '../../entities/upgrade-request/UpgradeRequestDb';
 import { UPGRADE_REQUEST_SCHEMA } from '../../schemas/upgrade-request/UpgradeRequestSchema';
+import { CLIENT_SCHEMA } from '../../schemas/user/ClientSchema';
 import { BaseRepository } from '../base/BaseRepository';
 
 @Service('upgrade_request.repository')
@@ -14,7 +15,8 @@ export class UpgradeRequestRepository extends BaseRepository<string, UpgradeRequ
     }
 
     override async findAndCount(param: FindUpgradeRequestFilter): Promise<[UpgradeRequest[], number]> {
-        let query = this.repository.createQueryBuilder(UPGRADE_REQUEST_SCHEMA.TABLE_NAME);
+        let query = this.repository.createQueryBuilder(UPGRADE_REQUEST_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${UPGRADE_REQUEST_SCHEMA.TABLE_NAME}.${UPGRADE_REQUEST_SCHEMA.RELATED_ONE.BIDDER}`, CLIENT_SCHEMA.TABLE_NAME);
 
         if (param.statuses && param.statuses.length)
             query = query.where(`${UPGRADE_REQUEST_SCHEMA.TABLE_NAME}.${UPGRADE_REQUEST_SCHEMA.COLUMNS.STATUS} IN (:...statuses)`, { statuses: param.statuses });

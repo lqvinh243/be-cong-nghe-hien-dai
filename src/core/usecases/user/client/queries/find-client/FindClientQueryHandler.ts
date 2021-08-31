@@ -1,3 +1,4 @@
+import { RoleId } from '@domain/enums/user/RoleId';
 import { FindClientFilter, IClientRepository } from '@gateways/repositories/user/IClientRepository';
 import { QueryHandler } from '@shared/usecase/QueryHandler';
 import { validateDataInput } from '@utils/validator';
@@ -17,6 +18,7 @@ export class FindClientQueryHandler extends QueryHandler<FindClientQueryInput, F
         filter.setPagination(param.skip, param.limit);
         filter.keyword = param.keyword;
         filter.status = param.status;
+        filter.roleIds = param.roleId ? [param.roleId] : [RoleId.SELLER, RoleId.BIDDER];
 
         const [clients, count] = await this._clientRepository.findAndCount(filter);
 

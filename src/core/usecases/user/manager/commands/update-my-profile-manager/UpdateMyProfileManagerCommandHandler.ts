@@ -17,10 +17,14 @@ export class UpdateMyProfileManagerCommandHandler extends CommandHandler<UpdateM
         await validateDataInput(param);
 
         const data = new Manager();
-        data.firstName = param.firstName;
-        data.lastName = param.lastName;
-        data.gender = param.gender;
-        data.birthday = param.birthday;
+        if (param.firstName)
+            data.firstName = param.firstName;
+        if (param.lastName)
+            data.lastName = param.lastName;
+        if (param.gender)
+            data.gender = param.gender;
+        if (param.birthday)
+            data.birthday = param.birthday;
 
         const manager = await this._managerRepository.getById(id);
         if (!manager)

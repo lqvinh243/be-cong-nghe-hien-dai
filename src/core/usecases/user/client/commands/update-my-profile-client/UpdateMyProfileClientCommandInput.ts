@@ -3,6 +3,7 @@ import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateMyProfileClientCommandInput {
     @IsString()
+    @IsOptional()
     firstName: string;
 
     @IsString()

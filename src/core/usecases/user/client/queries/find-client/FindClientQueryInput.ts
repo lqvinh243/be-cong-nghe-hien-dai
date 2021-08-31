@@ -10,4 +10,8 @@ export class FindClientQueryInput extends QueryPaginationRequest {
     @IsEnum(ClientStatus)
     @IsOptional()
     status: ClientStatus;
+
+    @IsString()
+    @IsOptional()
+    roleId: string;
 }

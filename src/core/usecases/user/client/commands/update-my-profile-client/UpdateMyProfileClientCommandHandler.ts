@@ -17,13 +17,20 @@ export class UpdateMyProfileClientCommandHandler extends CommandHandler<UpdateMy
         await validateDataInput(param);
 
         const data = new Client();
-        data.firstName = param.firstName;
-        data.lastName = param.lastName;
-        data.gender = param.gender;
-        data.birthday = param.birthday;
-        data.phone = param.phone;
-        data.address = param.address;
-        data.locale = param.locale;
+        if (param.firstName)
+            data.firstName = param.firstName;
+        if (param.lastName)
+            data.lastName = param.lastName;
+        if (param.gender)
+            data.gender = param.gender;
+        if (param.birthday)
+            data.birthday = param.birthday;
+        if (param.phone)
+            data.phone = param.phone;
+        if (param.address)
+            data.address = param.address;
+        if (param.locale)
+            data.locale = param.locale;
 
         const client = await this._clientRepository.getById(id);
         if (!client)

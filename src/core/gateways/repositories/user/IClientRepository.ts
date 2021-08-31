@@ -6,6 +6,7 @@ import { IBaseRepository } from '@shared/database/interfaces/IBaseRepository';
 export class FindClientFilter extends DbPaginationFilter {
     keyword: string | null;
     status: ClientStatus | null;
+    roleIds: string[];
 }
 
 export interface IClientRepository extends IBaseRepository<string, Client> {
