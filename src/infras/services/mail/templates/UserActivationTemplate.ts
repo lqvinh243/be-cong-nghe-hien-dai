@@ -1,4 +1,4 @@
-import { DOMAIN, PROJECT_NAME, PROTOTYPE } from '@configs/Configuration';
+import { DOMAIN_APP, PROJECT_NAME, PROTOTYPE_APP } from '@configs/Configuration';
 import Mailgen from 'mailgen';
 
 export class UserActivationTemplate {
@@ -12,7 +12,7 @@ export class UserActivationTemplate {
                     button: {
                         color: '#22BC66',
                         text: 'Confirm your account',
-                        link: `${PROTOTYPE}://${DOMAIN}/confirm-account?email=${email}&key=${activeKey}`
+                        link: `${PROTOTYPE_APP}://${DOMAIN_APP}/confirm-account?email=${email}&key=${activeKey}`
                     }
                 },
                 outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'

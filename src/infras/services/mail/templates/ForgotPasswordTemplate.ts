@@ -1,4 +1,4 @@
-import { DOMAIN, PROTOTYPE } from '@configs/Configuration';
+import { DOMAIN_APP, PROTOTYPE_APP } from '@configs/Configuration';
 import Mailgen from 'mailgen';
 
 export class ForgotPasswordTemplate {
@@ -12,7 +12,7 @@ export class ForgotPasswordTemplate {
                     button: {
                         color: '#DC4D2F',
                         text: 'Reset your password',
-                        link: `${PROTOTYPE}://${DOMAIN}/reset-password?email=${email}&key=${forgotKey}`
+                        link: `${PROTOTYPE_APP}://${DOMAIN_APP}/reset-password?email=${email}&key=${forgotKey}`
                     }
                 },
                 outro: 'If you did not request a password reset, no further action is required on your part.'

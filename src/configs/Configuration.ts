@@ -17,6 +17,8 @@ export const PROJECT_ID: string = process.env.PROJECT_ID ?? '';
 export const PROJECT_NAME: string = process.env.PROJECT_NAME ?? '';
 export const PROTOTYPE: string = process.env.PROTOTYPE ?? '';
 export const DOMAIN: string = process.env.DOMAIN ?? '';
+export const PROTOTYPE_APP: string = process.env.PROTOTYPE_APP ?? '';
+export const DOMAIN_APP: string = process.env.DOMAIN ?? '';
 
 // API SERVICE
 
