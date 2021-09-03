@@ -123,3 +123,6 @@ export const PAYPAL_KEY: string = process.env.PAYPAL_KEY ?? '';
 export const NOTIFICATION_PROVIDER: number = process.env.NOTIFICATION_PROVIDER ? Number(process.env.NOTIFICATION_PROVIDER) : NotificationProvider.CONSOLE;
 export const FCM_KEY: string = process.env.FCM_KEY ?? '';
 export const APN_KEY: string = process.env.APN_KEY ?? '';
+
+// CAPCHA SERVICE
+export const CAPCHA_SECRET_KEY: string = process.env.CAPCHA_SECRET_KEY ?? '';

@@ -17,6 +17,9 @@ import { LoginByEmailQueryOutput } from '@usecases/auth/auth/queries/login-by-em
 import { ValidateForgotKeyForEmailCommandHandler } from '@usecases/auth/auth/queries/validate-forgot-key-for-email/ValidateForgotKeyForEmailCommandHandler';
 import { ValidateForgotKeyForEmailCommandInput } from '@usecases/auth/auth/queries/validate-forgot-key-for-email/ValidateForgotKeyForEmailCommandInput';
 import { ValidateForgotKeyForEmailCommandOutput } from '@usecases/auth/auth/queries/validate-forgot-key-for-email/ValidateForgotKeyForEmailCommandOutput';
+import { VerifyCapchaCommandHandler } from '@usecases/auth/capcha/commands/verify-capcha/VerifyCapchaCommandHandler';
+import { VerifyCapchaCommandInput } from '@usecases/auth/capcha/commands/verify-capcha/VerifyCapchaCommandInput';
+import { VerifyCapchaCommandOutput } from '@usecases/auth/capcha/commands/verify-capcha/VerifyCapchaCommandOutput';
 import { Authorized, Body, CurrentUser, HeaderParam, JsonController, Patch, Post, QueryParam } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
@@ -30,6 +33,7 @@ export class AuthController {
         private readonly _forgotPasswordByEmailCommandHandler: ForgotPasswordByEmailCommandHandler,
         private readonly _validateForgotKeyForEmailCommandHandler: ValidateForgotKeyForEmailCommandHandler,
         private readonly _resetPasswordByEmailCommandHandler: ResetPasswordByEmailCommandHandler,
+        private readonly _verifyCapchaCommandHandler: VerifyCapchaCommandHandler,
         private readonly _updateMyPasswordByEmailCommandHandler: UpdateMyPasswordByEmailCommandHandler
     ) {}
 
@@ -89,6 +93,16 @@ export class AuthController {
     @ResponseSchema(ResetPasswordByEmailCommandOutput)
     async resetPassword(@Body() param: ResetPasswordByEmailCommandInput): Promise<ResetPasswordByEmailCommandOutput> {
         return await this._resetPasswordByEmailCommandHandler.handle(param);
+    }
+
+    @Post('/verify-capcha')
+    @OpenAPI({
+        summary: 'verify capcha',
+        security: []
+    })
+    @ResponseSchema(VerifyCapchaCommandOutput)
+    async verifyCapcha(@Body() param: VerifyCapchaCommandInput): Promise<VerifyCapchaCommandOutput> {
+        return await this._verifyCapchaCommandHandler.handle(param);
     }
 
     @Patch('/password')

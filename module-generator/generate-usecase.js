@@ -26,6 +26,12 @@ else
     console.log('Module:\x1b[32m', moduleName, '\x1b[0m');
 
 folder = convertToDirectoryName(folder);
+if (moduleName) {
+    moduleName = convertToDirectoryName(moduleName);
+    folder += `/${moduleName}`;
+}
+
+console.log(folder);
 const methodName = param.split(':')[1];
 const usecaseFncName = param.split(':')[2];
 
