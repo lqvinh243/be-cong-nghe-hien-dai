@@ -3,7 +3,6 @@ import { IManagerRepository } from '@gateways/repositories/user/IManagerReposito
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
-import { validateDataInput } from '@utils/validator';
 import { Inject, Service } from 'typedi';
 import { UpdateMyProfileManagerCommandInput } from './UpdateMyProfileManagerCommandInput';
 import { UpdateMyProfileManagerCommandOutput } from './UpdateMyProfileManagerCommandOutput';
@@ -14,8 +13,6 @@ export class UpdateMyProfileManagerCommandHandler extends CommandHandler<UpdateM
     private readonly _managerRepository: IManagerRepository;
 
     async handle(id: string, param: UpdateMyProfileManagerCommandInput): Promise<UpdateMyProfileManagerCommandOutput> {
-        await validateDataInput(param);
-
         const data = new Manager();
         if (param.firstName)
             data.firstName = param.firstName;

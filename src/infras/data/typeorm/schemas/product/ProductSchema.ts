@@ -26,6 +26,7 @@ export const PRODUCT_SCHEMA = {
     RELATED_MANY: {
         // The field name that we're defined into entity.
         PRODUCT_IMAGE: 'productImages',
-        PRODUCT_DESCRIPTION: 'productDescriptions'
+        PRODUCT_DESCRIPTION: 'productDescriptions',
+        PRODUCT_FAVOURITE: 'productFavourites'
     }
 };

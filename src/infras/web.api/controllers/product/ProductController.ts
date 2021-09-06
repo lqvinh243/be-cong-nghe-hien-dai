@@ -1,5 +1,8 @@
 import { RoleId } from '@domain/enums/user/RoleId';
 import { UserAuthenticated } from '@shared/UserAuthenticated';
+import { CreateProductFavouriteCommandHandler } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandHandler';
+import { CreateProductFavouriteCommandInput } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandInput';
+import { CreateProductFavouriteCommandOutput } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandOutput';
 import { CreateProductCommandHandler } from '@usecases/product/commands/create-product/CreateProductCommandHandler';
 import { CreateProductCommandInput } from '@usecases/product/commands/create-product/CreateProductCommandInput';
 import { CreateProductCommandOutput } from '@usecases/product/commands/create-product/CreateProductCommandOutput';
@@ -16,6 +19,9 @@ import { UpdateStatusProductToProgressCommandInput } from '@usecases/product/com
 import { UpdateStatusProductToProgressCommandOutput } from '@usecases/product/commands/update-status-product-to-progress/UpdateStatusProductToProgressCommandOutput';
 import { UploadMultipleProductImageCommandHandler } from '@usecases/product/commands/upload-multiple-product-image/UploadMultipleProductImageCommandHandler';
 import { UploadMultipleProductImageCommandInput } from '@usecases/product/commands/upload-multiple-product-image/UploadMultipleProductImageCommandInput';
+import { FindProductFavouriteQueryHandler } from '@usecases/product/queries/find-product-favourite/FindProductFavouriteQueryHandler';
+import { FindProductFavouriteQueryInput } from '@usecases/product/queries/find-product-favourite/FindProductFavouriteQueryInput';
+import { FindProductFavouriteQueryOutput } from '@usecases/product/queries/find-product-favourite/FindProductFavouriteQueryOutput';
 import { FindProductQueryHandler } from '@usecases/product/queries/find-product/FindProductQueryHandler';
 import { FindProductQueryInput } from '@usecases/product/queries/find-product/FindProductQueryInput';
 import { FindProductQueryOutput } from '@usecases/product/queries/find-product/FindProductQueryOutput';
@@ -34,10 +40,12 @@ import { Service } from 'typedi';
 export class ProductController {
     constructor(
         private readonly _findProductQueryHandler: FindProductQueryHandler,
+        private readonly _findProductFavouriteQueryHandler: FindProductFavouriteQueryHandler,
         private readonly _getProductByIdQueryHandler: GetProductByIdQueryHandler,
         private readonly _getProductBySellerQueryHandler: GetProductBySellerQueryHandler,
         private readonly _createProductCommandHandler: CreateProductCommandHandler,
         private readonly _uploadMultipleProductImageCommandHandler: UploadMultipleProductImageCommandHandler,
+        private readonly _createProductFavouriteCommandHandler: CreateProductFavouriteCommandHandler,
         private readonly _updateProductCommandHandler: UpdateProductCommandHandler,
         private readonly _updateStatusProductToProgressCommandHandler: UpdateStatusProductToProgressCommandHandler,
         private readonly _updateStatusProductToCancelCommandHandler: UpdateStatusProductToCancelCommandHandler,
@@ -49,6 +57,15 @@ export class ProductController {
     @ResponseSchema(FindProductQueryOutput)
     async find(@QueryParams() param: FindProductQueryInput): Promise<FindProductQueryOutput> {
         return await this._findProductQueryHandler.handle(param);
+    }
+
+    @Get('/favourite')
+    @OpenAPI({ summary: 'Find products favourite' })
+    @ResponseSchema(FindProductQueryOutput)
+    @Authorized([RoleId.BIDDER])
+    async findFavourite(@QueryParams() param: FindProductFavouriteQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductFavouriteQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._findProductFavouriteQueryHandler.handle(param);
     }
 
     @Get('/:id([0-9a-f-]{36})')
@@ -78,7 +95,7 @@ export class ProductController {
     }
 
     @Post('/:id([0-9a-f-]{36})/multiple-image')
-    @OpenAPI({ summary: 'Update product' })
+    @OpenAPI({ summary: 'Uplaod image product' })
     @ResponseSchema(UpdateProductCommandOutput)
     @Authorized([RoleId.SELLER])
     async uploadMultipleImage(@Param('id') id: string, @UploadedFiles('files', { required: true })files: Express.Multer.File[], @CurrentUser() userAuth: UserAuthenticated): Promise<UpdateProductCommandOutput> {
@@ -86,6 +103,17 @@ export class ProductController {
         param.files = files;
         param.userAuthId = userAuth.userId;
         return await this._uploadMultipleProductImageCommandHandler.handle(id, param);
+    }
+
+    @Post('/:id([0-9a-f-]{36})/favourite')
+    @OpenAPI({ summary: 'Favourite product' })
+    @ResponseSchema(UpdateProductCommandOutput)
+    @Authorized([RoleId.BIDDER])
+    async favourite(@Param('id') id: string, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateProductFavouriteCommandOutput> {
+        const param = new CreateProductFavouriteCommandInput();
+        param.productId = id;
+        param.userAuthId = userAuth.userId;
+        return await this._createProductFavouriteCommandHandler.handle(param);
     }
 
     @Put('/:id([0-9a-f-]{36})')

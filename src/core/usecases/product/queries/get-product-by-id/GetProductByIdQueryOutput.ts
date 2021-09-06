@@ -121,6 +121,9 @@ export class GetProductByIdQueryData {
     @IsDate()
     expiredAt: Date;
 
+    @IsBoolean()
+    isFavourite: boolean;
+
     seller: SellerData | null;
     bidder: BidderData | null;
     category: CategoryData | null;
@@ -136,6 +139,7 @@ export class GetProductByIdQueryData {
         this.bidPrice = data.bidPrice;
         this.stepPrice = data.stepPrice;
         this.expiredAt = data.expiredAt;
+        this.isFavourite = !!(data.productFavourites && data.productFavourites.length);
 
         this.seller = data.seller && new SellerData(data.seller);
         this.bidder = null;

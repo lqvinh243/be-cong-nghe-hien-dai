@@ -4,6 +4,7 @@ import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import * as validator from 'class-validator';
 import { ProductDescription } from './ProductDescription';
+import { ProductFavourite } from './ProductFavourite';
 import { ProductImage } from './ProductImage';
 import { BaseEntity } from '../base/BaseEntity';
 import { Category } from '../category/Category';
@@ -174,6 +175,10 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
 
     get productDescriptions(): ProductDescription[] | null {
         return this.data.productDescriptions && this.data.productDescriptions.map(productDescription => new ProductDescription(productDescription));
+    }
+
+    get productFavourites(): ProductFavourite[] | null {
+        return this.data.productFavourites && this.data.productFavourites.map(productFavourite => new ProductFavourite(productFavourite));
     }
 
     /* Handlers */

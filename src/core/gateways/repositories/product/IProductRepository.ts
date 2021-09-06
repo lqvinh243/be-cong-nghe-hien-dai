@@ -11,8 +11,15 @@ export class FindProductFilter extends DbPaginationFilter {
     sortType: ProductSortType;
 }
 
+export class FindProductFavouriteFilter extends DbPaginationFilter {
+    bidderId: string;
+    keyword: string | null;
+}
+
 export interface IProductRepository extends IBaseRepository<string, Product> {
     findAndCount(param: FindProductFilter): Promise<[Product[], number]>;
+
+    findAndCountProductFavourite(param: FindProductFavouriteFilter): Promise<[Product[], number]>;
 
     getDetailById(id: string): Promise<Product | null>;
 

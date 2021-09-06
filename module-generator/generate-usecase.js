@@ -12,6 +12,7 @@ let folder = moduleName;
 if (moduleName.includes('#')) {
     folder = moduleName.split('#')[0];
     moduleName = moduleName.split('#')[1];
+    console.log('1' + moduleName);
 
     if (!folder || !moduleName)
         throw new Error('\x1b[35mMissing name of the module or sub module!\n\x1b[0m');
@@ -26,7 +27,7 @@ else
     console.log('Module:\x1b[32m', moduleName, '\x1b[0m');
 
 folder = convertToDirectoryName(folder);
-if (moduleName) {
+if (moduleName.includes('#')) {
     moduleName = convertToDirectoryName(moduleName);
     folder += `/${moduleName}`;
 }

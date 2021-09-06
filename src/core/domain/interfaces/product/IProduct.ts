@@ -1,5 +1,6 @@
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { IProductDescription } from './IProductDescription';
+import { IProductFavourite } from './IProductFavourite';
 import { IProductImage } from './IProductImage';
 import { IEntity } from '../base/IEntity';
 import { ICategory } from '../category/ICategory';
@@ -25,4 +26,5 @@ export interface IProduct extends IEntity<string> {
     productStatistic: IProductStatistic | null;
     productImages: IProductImage[] | null;
     productDescriptions: IProductDescription[] | null;
+    productFavourites: IProductFavourite[] | null;
 }

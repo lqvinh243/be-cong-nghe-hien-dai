@@ -73,6 +73,7 @@ export class MeController {
         case RoleId.SELLER:
             return await this._updateMyProfileClientCommandHandler.handle(userAuth.userId, param);
         case RoleId.MANAGER:
+        case RoleId.SUPER_ADMIN:
             return await this._updateMyProfileManagerCommandHandler.handle(userAuth.userId, param);
         default:
             throw new SystemError(MessageError.DATA_INVALID);

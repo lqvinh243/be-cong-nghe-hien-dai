@@ -108,7 +108,7 @@ export class FindProductQueryData {
     }
 }
 
-export class FindProductQueryOutput extends PaginationResponse<FindProductQueryData> {
+export class FindProductFavouriteQueryOutput extends PaginationResponse<FindProductQueryData> {
     @IsArray()
     @RefSchemaArray(FindProductQueryData)
     data: FindProductQueryData[];

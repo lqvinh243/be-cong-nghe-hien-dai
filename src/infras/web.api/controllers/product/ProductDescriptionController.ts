@@ -1,3 +1,5 @@
+import { RoleId } from '@domain/enums/user/RoleId';
+import { UserAuthenticated } from '@shared/UserAuthenticated';
 import { CreateProductDescriptionCommandHandler } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandHandler';
 import { CreateProductDescriptionCommandInput } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandInput';
 import { CreateProductDescriptionCommandOutput } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandOutput';
@@ -11,7 +13,7 @@ import { FindProductDescriptionQueryInput } from '@usecases/product/queries/find
 import { FindProductDescriptionQueryOutput } from '@usecases/product/queries/find-product-description/FindProductDescriptionQueryOutput';
 import { GetProductDescriptionByIdQueryHandler } from '@usecases/product/queries/get-product-description-by-id/GetProductDescriptionByIdQueryHandler';
 import { GetProductDescriptionByIdQueryOutput } from '@usecases/product/queries/get-product-description-by-id/GetProductDescriptionByIdQueryOutput';
-import { Body, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
+import { Authorized, Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -43,7 +45,9 @@ export class ProductDescriptionController {
     @Post('/')
     @OpenAPI({ summary: 'Create productDescription' })
     @ResponseSchema(CreateProductDescriptionCommandOutput)
-    async create(@Body() param: CreateProductDescriptionCommandInput): Promise<CreateProductDescriptionCommandOutput> {
+    @Authorized([RoleId.SELLER])
+    async create(@Body() param: CreateProductDescriptionCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateProductDescriptionCommandOutput> {
+        param.userAuthId = userAuth.userId;
         return await this._createProductDescriptionCommandHandler.handle(param);
     }
 
