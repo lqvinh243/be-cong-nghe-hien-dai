@@ -1,5 +1,6 @@
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
+import { IBidderProduct } from '@domain/interfaces/bidder-product/IBidderProduct';
 import { ICategory } from '@domain/interfaces/category/ICategory';
 import { IProduct } from '@domain/interfaces/product/IProduct';
 import { IProductDescription } from '@domain/interfaces/product/IProductDescription';
@@ -14,6 +15,7 @@ import { ProductImageDb } from './ProductImageDb';
 import { PRODUCT_SCHEMA } from '../../schemas/product/ProductSchema';
 import { NumericTransformer } from '../../transformers/NumericTransformer';
 import { BaseDbEntity } from '../base/BaseDBEntity';
+import { BidderProductDb } from '../bidder-product/BidderProductDb';
 import { CategoryDb } from '../category/CategoryDb';
 import { ProductStatisticDb } from '../statistic/ProductStatisticDb';
 import { ClientDb } from '../user/ClientDb';
@@ -76,6 +78,9 @@ export class ProductDb extends BaseDbEntity<string, Product> implements IProduct
 
     @OneToMany(() => ProductFavouriteDb, productFavourite => productFavourite.product)
     productFavourites: IProductFavourite[] | null;
+
+    @OneToMany(() => BidderProductDb, bidderProduct => bidderProduct.product)
+    bidderProducts: IBidderProduct[] | null;
 
     /* Handlers */
 

@@ -27,6 +27,7 @@ export const PRODUCT_SCHEMA = {
         // The field name that we're defined into entity.
         PRODUCT_IMAGE: 'productImages',
         PRODUCT_DESCRIPTION: 'productDescriptions',
-        PRODUCT_FAVOURITE: 'productFavourites'
+        PRODUCT_FAVOURITE: 'productFavourites',
+        BIDDER_PRODUCT: 'bidderProducts'
     }
 };

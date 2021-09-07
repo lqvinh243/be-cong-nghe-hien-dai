@@ -52,6 +52,7 @@ export class BidderProductRepository extends BaseRepository<string, BidderProduc
 
     async getBiggestByProduct(productId: string, isBlock = false): Promise<BidderProduct | null> {
         let query = this.repository.createQueryBuilder(BIDDER_PRODUCT_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.RELATED_ONE.BIDDER}`, CLIENT_SCHEMA.TABLE_NAME)
             .where(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.COLUMNS.PRODUCT_ID} = :productId`, { productId })
             .andWhere(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.COLUMNS.IS_BLOCK} = :isBlock`, { isBlock });
 

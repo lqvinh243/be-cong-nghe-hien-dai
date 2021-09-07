@@ -7,6 +7,7 @@ import { ProductDescription } from './ProductDescription';
 import { ProductFavourite } from './ProductFavourite';
 import { ProductImage } from './ProductImage';
 import { BaseEntity } from '../base/BaseEntity';
+import { BidderProduct } from '../bidder-product/BidderProduct';
 import { Category } from '../category/Category';
 import { ProductStatistic } from '../statistic/ProductStatistic';
 import { Client } from '../user/Client';
@@ -179,6 +180,10 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
 
     get productFavourites(): ProductFavourite[] | null {
         return this.data.productFavourites && this.data.productFavourites.map(productFavourite => new ProductFavourite(productFavourite));
+    }
+
+    get bidderProducts(): BidderProduct[] | null {
+        return this.data.bidderProducts && this.data.bidderProducts.map(bidderProduct => new BidderProduct(bidderProduct));
     }
 
     /* Handlers */

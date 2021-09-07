@@ -3,6 +3,7 @@ import { Category } from '@domain/entities/category/Category';
 import { Product } from '@domain/entities/product/Product';
 import { ProductDescription } from '@domain/entities/product/ProductDescription';
 import { ProductImage } from '@domain/entities/product/ProductImage';
+import { ProductStatistic } from '@domain/entities/statistic/ProductStatistic';
 import { Client } from '@domain/entities/user/Client';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { RefSchemaObject } from '@shared/decorators/RefSchema';
@@ -96,6 +97,15 @@ export class SellerData {
     }
 }
 
+export class ProductStatictisData {
+    @IsNumber()
+    auctions: number;
+
+    constructor(data: ProductStatistic) {
+        this.auctions = data.auctions;
+    }
+}
+
 export class GetProductByIdQueryData {
     @IsUUID()
     id: string;
@@ -121,6 +131,9 @@ export class GetProductByIdQueryData {
     @IsDate()
     expiredAt: Date;
 
+    @IsNumber()
+    rateSeller: number | null;
+
     @IsBoolean()
     isFavourite: boolean;
 
@@ -129,6 +142,7 @@ export class GetProductByIdQueryData {
     category: CategoryData | null;
     productImages: ProductImageData[] | null;
     productDescription: ProductDescription[] | null;
+    statistic: ProductStatictisData | null;
 
     constructor(data: Product) {
         this.id = data.id;
@@ -140,16 +154,22 @@ export class GetProductByIdQueryData {
         this.stepPrice = data.stepPrice;
         this.expiredAt = data.expiredAt;
         this.isFavourite = !!(data.productFavourites && data.productFavourites.length);
+        this.rateSeller = null;
 
         this.seller = data.seller && new SellerData(data.seller);
         this.bidder = null;
         this.category = data.category && new CategoryData(data.category);
         this.productImages = data.productImages && data.productImages.map(item => new ProductImageData(item));
+        this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
         this.productDescription = data.productDescriptions && data.productDescriptions.map(item => new ProductDescription(item));
     }
 
     setBidder(data: BidderProduct): void {
         this.bidder = new BidderData(data);
+    }
+
+    setRateSeller(rate: number): void {
+        this.rateSeller = rate;
     }
 }
 

@@ -2,7 +2,6 @@ import { ProductStatistic } from '@domain/entities/statistic/ProductStatistic';
 import { IProductStatisticRepository } from '@gateways/repositories/statistic/IProductStatisticRepository';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
 import { CreateClientCommandOutput } from '@usecases/user/client/commands/create-client/CreateClientCommandOutput';
-import { validateDataInput } from '@utils/validator';
 import { Inject, Service } from 'typedi';
 import { CreateProductStatisticCommandInput } from './CreateProductStatisticCommandInput';
 import { CreateProductStatisticCommandOutput } from './CreateProductStatisticCommandOutput';
@@ -13,10 +12,7 @@ export class CreateProductStatisticCommandHandler implements CommandHandler<Crea
     private readonly _productStatisticRepository: IProductStatisticRepository;
 
     async handle(param: CreateProductStatisticCommandInput): Promise<CreateProductStatisticCommandOutput> {
-        await validateDataInput(param);
-
         const productStatistic = await this._productStatisticRepository.checkDataExistAndGet(param.productId);
-
         const data = new ProductStatistic();
         data.productId = param.productId;
         let id: string | null = null;

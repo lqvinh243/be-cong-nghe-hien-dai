@@ -1,5 +1,8 @@
 import { RoleId } from '@domain/enums/user/RoleId';
 import { UserAuthenticated } from '@shared/UserAuthenticated';
+import { BuyNowProductCommandHandler } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandHandler';
+import { BuyNowProductCommandInput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandInput';
+import { BuyNowProductCommandOutput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandOutput';
 import { CreateProductFavouriteCommandHandler } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandHandler';
 import { CreateProductFavouriteCommandInput } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandInput';
 import { CreateProductFavouriteCommandOutput } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandOutput';
@@ -46,6 +49,7 @@ export class ProductController {
         private readonly _createProductCommandHandler: CreateProductCommandHandler,
         private readonly _uploadMultipleProductImageCommandHandler: UploadMultipleProductImageCommandHandler,
         private readonly _createProductFavouriteCommandHandler: CreateProductFavouriteCommandHandler,
+        private readonly _buyNowProductCommandHandler: BuyNowProductCommandHandler,
         private readonly _updateProductCommandHandler: UpdateProductCommandHandler,
         private readonly _updateStatusProductToProgressCommandHandler: UpdateStatusProductToProgressCommandHandler,
         private readonly _updateStatusProductToCancelCommandHandler: UpdateStatusProductToCancelCommandHandler,
@@ -114,6 +118,17 @@ export class ProductController {
         param.productId = id;
         param.userAuthId = userAuth.userId;
         return await this._createProductFavouriteCommandHandler.handle(param);
+    }
+
+    @Post('/:id([0-9a-f-]{36})/buy')
+    @OpenAPI({ summary: 'Favourite product' })
+    @ResponseSchema(UpdateProductCommandOutput)
+    @Authorized([RoleId.BIDDER])
+    async buy(@Param('id') id: string, @CurrentUser() userAuth: UserAuthenticated): Promise<BuyNowProductCommandOutput> {
+        const param = new BuyNowProductCommandInput();
+        param.productId = id;
+        param.userAuthId = userAuth.userId;
+        return await this._buyNowProductCommandHandler.handle(param);
     }
 
     @Put('/:id([0-9a-f-]{36})')

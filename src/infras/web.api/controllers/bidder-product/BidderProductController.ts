@@ -1,3 +1,5 @@
+import { RoleId } from '@domain/enums/user/RoleId';
+import { UserAuthenticated } from '@shared/UserAuthenticated';
 import { CreateBidderProductCommandHandler } from '@usecases/bidder-product/commands/create-bidder-product/CreateBidderProductCommandHandler';
 import { CreateBidderProductCommandInput } from '@usecases/bidder-product/commands/create-bidder-product/CreateBidderProductCommandInput';
 import { CreateBidderProductCommandOutput } from '@usecases/bidder-product/commands/create-bidder-product/CreateBidderProductCommandOutput';
@@ -11,7 +13,7 @@ import { FindBidderProductQueryInput } from '@usecases/bidder-product/queries/fi
 import { FindBidderProductQueryOutput } from '@usecases/bidder-product/queries/find-bidder-product/FindBidderProductQueryOutput';
 import { GetBidderProductByIdQueryHandler } from '@usecases/bidder-product/queries/get-bidder-product-by-id/GetBidderProductByIdQueryHandler';
 import { GetBidderProductByIdQueryOutput } from '@usecases/bidder-product/queries/get-bidder-product-by-id/GetBidderProductByIdQueryOutput';
-import { Body, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
+import { Authorized, Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -43,7 +45,9 @@ export class BidderProductController {
     @Post('/')
     @OpenAPI({ summary: 'Create bidderProduct' })
     @ResponseSchema(CreateBidderProductCommandOutput)
-    async create(@Body() param: CreateBidderProductCommandInput): Promise<CreateBidderProductCommandOutput> {
+    @Authorized([RoleId.BIDDER])
+    async create(@Body() param: CreateBidderProductCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateBidderProductCommandOutput> {
+        param.userAuthId = userAuth.userId;
         return await this._createBidderProductCommandHandler.handle(param);
     }
 

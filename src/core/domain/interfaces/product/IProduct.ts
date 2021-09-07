@@ -3,6 +3,7 @@ import { IProductDescription } from './IProductDescription';
 import { IProductFavourite } from './IProductFavourite';
 import { IProductImage } from './IProductImage';
 import { IEntity } from '../base/IEntity';
+import { IBidderProduct } from '../bidder-product/IBidderProduct';
 import { ICategory } from '../category/ICategory';
 import { IProductStatistic } from '../statistic/IProductStatistic';
 import { IClient } from '../user/IClient';
@@ -27,4 +28,5 @@ export interface IProduct extends IEntity<string> {
     productImages: IProductImage[] | null;
     productDescriptions: IProductDescription[] | null;
     productFavourites: IProductFavourite[] | null;
+    bidderProducts: IBidderProduct[] | null;
 }

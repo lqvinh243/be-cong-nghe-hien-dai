@@ -26,7 +26,7 @@ export class ProductStatistic extends BaseEntity<string, IProductStatistic> impl
     set views(val: number) {
         if (validator.isEmpty(val))
             throw new SystemError(MessageError.PARAM_REQUIRED, 'views');
-        if (!validator.isNumber(val) || val <= 0)
+        if (!validator.isNumber(val) || val < 0)
             throw new SystemError(MessageError.PARAM_INVALID, 'views');
 
         this.data.views = val;
@@ -39,7 +39,7 @@ export class ProductStatistic extends BaseEntity<string, IProductStatistic> impl
     set auctions(val: number) {
         if (validator.isEmpty(val))
             throw new SystemError(MessageError.PARAM_REQUIRED, 'auctions');
-        if (!validator.isNumber(val) || val <= 0)
+        if (!validator.isNumber(val) || val < 0)
             throw new SystemError(MessageError.PARAM_INVALID, 'auctions');
 
         this.data.auctions = val;
