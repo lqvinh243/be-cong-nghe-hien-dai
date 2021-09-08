@@ -48,6 +48,7 @@ export class BidderProductController {
     @Authorized([RoleId.BIDDER])
     async create(@Body() param: CreateBidderProductCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateBidderProductCommandOutput> {
         param.userAuthId = userAuth.userId;
+        param.isManual = true;
         return await this._createBidderProductCommandHandler.handle(param);
     }
 

@@ -1,12 +1,11 @@
 import { IsNumber, IsUUID } from 'class-validator';
 
-export class CreateBidderProductCommandInput {
+export class CreateBidderProductAutoCommandInput {
     userAuthId: string;
-    isManual: boolean;
 
     @IsUUID()
     productId: string;
 
     @IsNumber()
-    price: number;
+    maxPrice: number;
 }

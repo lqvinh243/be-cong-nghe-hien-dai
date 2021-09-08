@@ -2,6 +2,7 @@ import { BidderProduct } from '@domain/entities/bidder-product/BidderProduct';
 import { BidderProductStep } from '@domain/entities/bidder-product/BidderProductStep';
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
+import { IBidderProductAutoRepository } from '@gateways/repositories/bidder-product/IBidderProductAutoRepository';
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IBidderProductStepRepository } from '@gateways/repositories/bidder-product/IBidderProductStepRepository';
 import { IProductFeedbackRepository } from '@gateways/repositories/feed-back/IProductFeedbackRepository';
@@ -34,6 +35,9 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
     @Inject('bidder_product_step.repository')
     private readonly _bidderProductStepRepository: IBidderProductStepRepository;
 
+    @Inject('bidder_product_auto.repository')
+    private readonly _bidderProductAutoRepository: IBidderProductAutoRepository;
+
     @Inject('product_feedback.repository')
     private readonly _productFeedbackRepository: IProductFeedbackRepository;
 
@@ -52,7 +56,15 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
         if (!product || product.status !== ProductStatus.PROCESSS)
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
+        if (data.bidderId === product.sellerId)
+            throw new SystemError(MessageError.OTHER, 'You cannot bid your product!');
+
         data.price = product.bidPrice && param.price > product.bidPrice ? product.bidPrice : param.price;
+        if (param.isManual) {
+            const bidderProductAuto = await this._bidderProductAutoRepository.getBiggestByProduct(data.productId);
+            if (bidderProductAuto && bidderProductAuto.maxPrice >= data.price)
+                data.bidderId = bidderProductAuto.bidderId;
+        }
 
         if (product.isStricten) {
             const rates = await this._productFeedbackRepository.getByReceiverId(data.bidderId);
@@ -65,8 +77,11 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                 throw new SystemError(MessageError.OTHER, 'You cannot bid this product!');
         }
         if (!product.bidPrice || (product.bidPrice && data.price < product.bidPrice)) {
-            if (data.price - product.stepPrice < product.priceNow)
+            const bidderProduct = await this._bidderProductRepository.getBiggestByProduct(data.productId);
+            if (data.price - product.stepPrice < product.priceNow && bidderProduct)
                 throw new SystemError(MessageError.OTHER, 'Price must be bigger old price and step price!');
+            else if (data.price < product.priceNow)
+                throw new SystemError(MessageError.PARAM_INVALID, 'price');
         }
 
         const transactionLevel = product.bidPrice && data.price >= product.bidPrice ? TransactionIsolationLevel.REPEATABLE_READ : TransactionIsolationLevel.READ_COMMITTED;
@@ -108,6 +123,32 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                 const job = jobs.find(item => item.name === key);
                 if (job)
                     await job.remove();
+            }
+
+            if (param.userAuthId !== data.bidderId) {
+                this._dbContext.getConnection().runTransaction(async queryRunner => {
+                    const dataBid = new BidderProduct();
+                    dataBid.productId = data.productId;
+                    dataBid.bidderId = param.userAuthId;
+                    dataBid.price = data.price;
+                    let id: string| null = null;
+                    if (bidderProduct) {
+                        id = bidderProduct.id;
+                        await this._bidderProductRepository.update(id, dataBid, queryRunner);
+                    }
+                    else
+                        id = await this._bidderProductRepository.create(dataBid, queryRunner);
+
+                    const bidderProductStep = new BidderProductStep();
+                    bidderProductStep.bidderProductId = id;
+                    bidderProductStep.price = data.price;
+
+                    await this._bidderProductStepRepository.create(bidderProductStep, queryRunner);
+                    const paramStatistic = new CreateProductStatisticCommandInput();
+                    paramStatistic.productId = product.id;
+                    paramStatistic.isAuction = true;
+                    this._createProductStatisticCommandHandler.handle(paramStatistic);
+                });
             }
         }, transactionLevel);
 
