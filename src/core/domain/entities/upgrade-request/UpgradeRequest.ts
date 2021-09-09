@@ -14,9 +14,9 @@ export class UpgradeRequest extends BaseEntity<string, IUpgradeRequest> implemen
 
     set bidderId(val: string) {
         if (!val)
-            throw new SystemError(MessageError.PARAM_REQUIRED, 'category');
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'bidder');
         if (!validator.isUUID(val))
-            throw new SystemError(MessageError.PARAM_INVALID, 'category');
+            throw new SystemError(MessageError.PARAM_INVALID, 'bidder');
 
         this.data.bidderId = val;
     }

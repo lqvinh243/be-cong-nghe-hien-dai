@@ -14,7 +14,7 @@ describe('Client entity', () => {
             const client = new Client();
             client.email = 'client.test@';
         }
-        catch (error) {
+        catch (error: any) {
             expect(error.message).to.eq(new SystemError(MessageError.PARAM_INVALID, 'email').message);
         }
     });
