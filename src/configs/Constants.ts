@@ -34,3 +34,9 @@ export enum NotificationProvider {
     CONSOLE = 1,
     NODE_PUSH_NOTIFICATION = 2
 }
+
+export enum SearchProvider {
+    CONSOLE = 1,
+    ELASTIC = 2,
+    AGOLIA = 3
+}

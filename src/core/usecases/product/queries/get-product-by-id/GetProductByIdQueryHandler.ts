@@ -1,6 +1,7 @@
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IProductFeedbackRepository } from '@gateways/repositories/feed-back/IProductFeedbackRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { ISearchService } from '@gateways/services/ISearchService';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { QueryHandler } from '@shared/usecase/QueryHandler';
@@ -19,6 +20,9 @@ export class GetProductByIdQueryHandler implements QueryHandler<GetProductByIdQu
     @Inject('product_feedback.repository')
     private readonly _productFeedbackRepository: IProductFeedbackRepository;
 
+    @Inject('search.service')
+    private readonly _searchService: ISearchService;
+
     async handle(param: GetProductByIdQueryInput): Promise<GetProductByIdQueryOutput> {
         const product = await this._productRepository.getDetailById(param.id);
         if (!product)
@@ -29,6 +33,8 @@ export class GetProductByIdQueryHandler implements QueryHandler<GetProductByIdQu
         const bidderProductWin = await this._bidderProductRepository.getBiggestByProduct(product.id);
         if (bidderProductWin)
             result.data.setBidder(bidderProductWin);
+
+        await this._searchService.create(product);
 
         const rates = await this._productFeedbackRepository.getByReceiverId(product.sellerId);
         if (rates.down && rates.up) {

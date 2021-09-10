@@ -28,6 +28,8 @@ export interface IProductRepository extends IBaseRepository<string, Product> {
 
     findAndCountProductHaveBeenBiddingByBidder(param: FindProductHaveBeenBiddingByBidder): Promise<[Product[], number]>;
 
+    getAll(statuses: ProductStatus[]): Promise<Product[]>;
+
     getDetailById(id: string): Promise<Product | null>;
 
     checkNameExist(name: string): Promise<boolean>;

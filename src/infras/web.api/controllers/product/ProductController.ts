@@ -1,5 +1,8 @@
 import { RoleId } from '@domain/enums/user/RoleId';
 import { UserAuthenticated } from '@shared/UserAuthenticated';
+import { BulkProductToSearchCommandHandler } from '@usecases/product/commands/bulk-product-to-search/BulkProductToSearchCommandHandler';
+import { BulkProductToSearchCommandInput } from '@usecases/product/commands/bulk-product-to-search/BulkProductToSearchCommandInput';
+import { BulkProductToSearchCommandOutput } from '@usecases/product/commands/bulk-product-to-search/BulkProductToSearchCommandOutput';
 import { BuyNowProductCommandHandler } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandHandler';
 import { BuyNowProductCommandInput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandInput';
 import { BuyNowProductCommandOutput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandOutput';
@@ -47,6 +50,7 @@ export class ProductController {
         private readonly _getProductByIdQueryHandler: GetProductByIdQueryHandler,
         private readonly _getProductBySellerQueryHandler: GetProductBySellerQueryHandler,
         private readonly _createProductCommandHandler: CreateProductCommandHandler,
+        private readonly _bulkProductToSearchCommandHandler: BulkProductToSearchCommandHandler,
         private readonly _uploadMultipleProductImageCommandHandler: UploadMultipleProductImageCommandHandler,
         private readonly _createProductFavouriteCommandHandler: CreateProductFavouriteCommandHandler,
         private readonly _buyNowProductCommandHandler: BuyNowProductCommandHandler,
@@ -96,6 +100,15 @@ export class ProductController {
         param.userAuthId = userAuth.userId;
         param.file = file;
         return await this._createProductCommandHandler.handle(param);
+    }
+
+    @Post('/bulk-search')
+    @Authorized([RoleId.SUPER_ADMIN])
+    async bulkSearch(@CurrentUser() userAuth: UserAuthenticated): Promise<BulkProductToSearchCommandOutput> {
+        const param = new BulkProductToSearchCommandInput();
+        param.userAuthId = userAuth.userId;
+        param.roleAuthId = userAuth.roleId;
+        return await this._bulkProductToSearchCommandHandler.handle(param);
     }
 
     @Post('/:id([0-9a-f-]{36})/multiple-image')

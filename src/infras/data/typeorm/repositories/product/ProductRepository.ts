@@ -1,4 +1,5 @@
 import { Product } from '@domain/entities/product/Product';
+import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { FindProductFavouriteFilter, FindProductFilter, FindProductHaveBeenBiddingByBidder, IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { SortType } from '@shared/database/SortType';
 import { ProductSortType } from '@usecases/product/queries/find-product/FindProductQueryInput';
@@ -101,6 +102,21 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
 
         const [list, count] = await query.getManyAndCount();
         return [list.map(item => item.toEntity()), count];
+    }
+
+    async getAll(statuses: ProductStatus[]): Promise<Product[]> {
+        let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.PRODUCT_STATISTIC}`, PRODUCT_STATISTIC_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.SELLER}`, CLIENT_SCHEMA.TABLE_NAME)
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_DESCRIPTION}`, PRODUCT_DESCRIPTION_SCHEMA.TABLE_NAME)
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_IMAGE}`, PRODUCT_IMAGE_SCHEMA.TABLE_NAME);
+
+        if (statuses.length)
+            query = query.where(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.STATUS} IN(:...statuses)`, { statuses });
+
+        const result = await query.getMany();
+        return result.map(item => item.toEntity());
     }
 
     async getDetailById(id: string): Promise<Product | null> {
