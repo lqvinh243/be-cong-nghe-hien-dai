@@ -8,6 +8,7 @@ import { IBidderProductStepRepository } from '@gateways/repositories/bidder-prod
 import { IProductFeedbackRepository } from '@gateways/repositories/feed-back/IProductFeedbackRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { IQueueJobService } from '@gateways/services/IQueueJobService';
+import { ISearchService } from '@gateways/services/ISearchService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
 import { TransactionIsolationLevel } from '@shared/database/TransactionIsolationLevel';
 import { MessageError } from '@shared/exceptions/message/MessageError';
@@ -46,6 +47,9 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
 
     @Inject('queue_job.service')
     private readonly _queueService: IQueueJobService;
+
+    @Inject('search.service')
+    private readonly _searchService: ISearchService;
 
     async handle(param: CreateBidderProductCommandInput): Promise<CreateBidderProductCommandOutput> {
         const data = new BidderProduct();
@@ -123,6 +127,8 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                 const job = jobs.find(item => item.name === key);
                 if (job)
                     await job.remove();
+
+                this._searchService.delete([key]);
             }
 
             if (param.userAuthId !== data.bidderId) {

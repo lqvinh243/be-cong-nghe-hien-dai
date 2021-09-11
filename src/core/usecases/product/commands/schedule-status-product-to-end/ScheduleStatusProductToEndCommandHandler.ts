@@ -2,6 +2,7 @@ import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { ISearchService } from '@gateways/services/ISearchService';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
@@ -17,6 +18,9 @@ export class ScheduleStatusProductToEndCommandHandler implements CommandHandler<
     @Inject('bidder_product.repository')
     private readonly _bidderProductRepository: IBidderProductRepository;
 
+    @Inject('search.service')
+    private readonly _searchService: ISearchService;
+
     async handle(param: ScheduleStatusProductToEndCommandInput): Promise<ScheduleStatusProductToEndCommandOutput> {
         const product = await this._productRepository.getById(param.id);
         if (!product)
@@ -31,6 +35,8 @@ export class ScheduleStatusProductToEndCommandHandler implements CommandHandler<
             data.winnerId = bidderProductWin.bidderId;
 
         await this._productRepository.update(product.id, data);
+
+        this._searchService.delete([product.id]);
 
         const result = new ScheduleStatusProductToEndCommandOutput();
         result.setData(true);

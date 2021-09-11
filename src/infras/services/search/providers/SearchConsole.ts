@@ -11,6 +11,10 @@ export class SearchConsole implements ISearchProvider {
         console.log('Create bulk to search', body);
     }
 
+    async delete(ids: string[]): Promise<void> {
+        console.log('Delete to search', ids);
+    }
+
     async bulkDelete(body: any[]): Promise<void> {
         console.log('Delete bulk to search', body);
     }

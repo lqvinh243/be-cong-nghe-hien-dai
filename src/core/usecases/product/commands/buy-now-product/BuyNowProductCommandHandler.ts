@@ -1,7 +1,9 @@
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
+import { IBidderProductAutoRepository } from '@gateways/repositories/bidder-product/IBidderProductAutoRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { IQueueJobService } from '@gateways/services/IQueueJobService';
+import { ISearchService } from '@gateways/services/ISearchService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
 import { TransactionIsolationLevel } from '@shared/database/TransactionIsolationLevel';
 import { MessageError } from '@shared/exceptions/message/MessageError';
@@ -23,15 +25,27 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
     @Inject('queue_job.service')
     private readonly _queueService: IQueueJobService;
 
+    @Inject('bidder_product_auto.repository')
+    private readonly _bidderProductAutoRepository: IBidderProductAutoRepository;
+
+    @Inject('search.service')
+    private readonly _searchService: ISearchService;
+
     async handle(param: BuyNowProductCommandInput): Promise<BuyNowProductCommandOutput> {
+        let idDelete = '';
         await this._dbContext.getConnection().runTransaction(async queryRunner => {
             const product = await this._productRepository.getById(param.productId, queryRunner);
-            if (!product || product.status !== ProductStatus.PROCESSS)
+            if (!product || product.status !== ProductStatus.PROCESSS || !product.bidPrice)
                 throw new SystemError(MessageError.DATA_NOT_FOUND);
+            idDelete = product.id;
+
+            const bidderAuto = await this._bidderProductAutoRepository.getBiggestByProduct(product.id);
 
             const productData = new Product();
             productData.status = ProductStatus.END;
             productData.winnerId = param.userAuthId;
+            if (bidderAuto && bidderAuto.maxPrice >= product.bidPrice)
+                productData.winnerId = bidderAuto.bidderId;
 
             await this._productRepository.update(product.id, productData, queryRunner);
         },
@@ -43,6 +57,8 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
             const job = jobs.find(item => item.name === key);
             if (job)
                 await job.remove();
+
+            this._searchService.delete([idDelete]);
         }, TransactionIsolationLevel.REPEATABLE_READ);
 
         const result = new BuyNowProductCommandOutput();

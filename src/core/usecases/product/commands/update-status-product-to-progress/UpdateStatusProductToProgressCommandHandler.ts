@@ -10,9 +10,14 @@ import { CommandHandler } from '@shared/usecase/CommandHandler';
 import { Inject, Service } from 'typedi';
 import { UpdateStatusProductToProgressCommandInput } from './UpdateStatusProductToProgressCommandInput';
 import { UpdateStatusProductToProgressCommandOutput } from './UpdateStatusProductToProgressCommandOutput';
+import { SyncProductToSearchCommandHandler } from '../sync-product-to-search/SyncProductToSearchCommandHandler';
+import { SyncProductToSearchCommandInput } from '../sync-product-to-search/SyncProductToSearchCommandInput';
 
 @Service()
 export class UpdateStatusProductToProgressCommandHandler implements CommandHandler<UpdateStatusProductToProgressCommandInput, UpdateStatusProductToProgressCommandOutput> {
+   @Inject()
+   private readonly _syncProductToSearchCommandHandler: SyncProductToSearchCommandHandler;
+
     @Inject('product.repository')
     private readonly _productRepository: IProductRepository;
 
@@ -39,6 +44,8 @@ export class UpdateStatusProductToProgressCommandHandler implements CommandHandl
         data.status = ProductStatus.PROCESSS;
 
         await this._productRepository.update(product.id, data);
+
+        this._syncProductToSearchCommandHandler.handle(new SyncProductToSearchCommandInput(product.id));
 
         const result = new UpdateStatusProductToProgressCommandOutput();
         result.setData(id);

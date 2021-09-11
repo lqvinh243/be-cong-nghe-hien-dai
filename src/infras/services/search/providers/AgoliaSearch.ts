@@ -14,9 +14,14 @@ export class AgoliaSearch implements ISearchProvider {
         return this._client.initIndex(index);
     }
 
-    async create(body: any): Promise<void> {
+    async create(body: Product): Promise<void> {
         const index = this.getIndex(SEARCH_PRODUCT_INDEX);
-        await index.saveObjects({ objectID: body.id, ...body });
+        await index.saveObjects([{ objectID: body.id, ...body.toData() }]);
+    }
+
+    async delete(ids: string[]): Promise<void> {
+        const index = this.getIndex(SEARCH_PRODUCT_INDEX);
+        await index.deleteObjects(ids);
     }
 
     async bulkCreate(body: Product[]): Promise<void> {

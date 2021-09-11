@@ -1,4 +1,5 @@
 import { Product } from '@domain/entities/product/Product';
+import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
@@ -26,7 +27,7 @@ export class UpdateProductCommandHandler implements CommandHandler<UpdateProduct
             data.expiredAt = new Date(param.expiredAt);
 
         const product = await this._productRepository.getById(id);
-        if (!product)
+        if (!product || product.status !== ProductStatus.DRAFT)
             throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'product');
 
         if (product.sellerId !== param.userAuthId)

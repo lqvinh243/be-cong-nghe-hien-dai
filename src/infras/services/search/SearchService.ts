@@ -34,6 +34,10 @@ export class SearchService implements ISearchService {
         await this._provider.bulkCreate(body);
     }
 
+    async delete(ids: string[]): Promise<void> {
+        await this._provider.delete(ids);
+    }
+
     async bulkDelete(body: any[]): Promise<void> {
         await this._provider.bulkDelete(body);
     }

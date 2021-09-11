@@ -3,5 +3,7 @@ export interface ISearchProvider {
 
     bulkCreate(body: any[]): Promise<void>;
 
+    delete(ids: string[]): Promise<void>;
+
     bulkDelete(body: any[]): Promise<void>;
 }

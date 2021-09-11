@@ -46,6 +46,11 @@ export class ElasticSearch implements ISearchProvider {
         await this._client.bulk({ body: bulk });
     }
 
+    async delete(ids: string[]): Promise<void> {
+        for (const id of ids)
+            this._client.delete({ id, index: SEARCH_PRODUCT_INDEX });
+    }
+
     async bulkDelete(body: any[]): Promise<void> {
         const bulk: any[] = [];
         body.forEach(item => {

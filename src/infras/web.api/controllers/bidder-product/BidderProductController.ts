@@ -13,6 +13,9 @@ import { FindBidderProductQueryInput } from '@usecases/bidder-product/queries/fi
 import { FindBidderProductQueryOutput } from '@usecases/bidder-product/queries/find-bidder-product/FindBidderProductQueryOutput';
 import { GetBidderProductByIdQueryHandler } from '@usecases/bidder-product/queries/get-bidder-product-by-id/GetBidderProductByIdQueryHandler';
 import { GetBidderProductByIdQueryOutput } from '@usecases/bidder-product/queries/get-bidder-product-by-id/GetBidderProductByIdQueryOutput';
+import { GetBiggestByProductIdsQueryHandler } from '@usecases/bidder-product/queries/get-biggest-by-product-ids/GetBiggestByProductIdsQueryHandler';
+import { GetBiggestByProductIdsQueryInput } from '@usecases/bidder-product/queries/get-biggest-by-product-ids/GetBiggestByProductIdsQueryInput';
+import { GetBiggestByProductIdsQueryOutput } from '@usecases/bidder-product/queries/get-biggest-by-product-ids/GetBiggestByProductIdsQueryOutput';
 import { Authorized, Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
@@ -22,6 +25,7 @@ import { Service } from 'typedi';
 export class BidderProductController {
     constructor(
         private readonly _findBidderProductQueryHandler: FindBidderProductQueryHandler,
+        private readonly _getBiggestByProductIdsQueryHandler: GetBiggestByProductIdsQueryHandler,
         private readonly _getBidderProductByIdQueryHandler: GetBidderProductByIdQueryHandler,
         private readonly _createBidderProductCommandHandler: CreateBidderProductCommandHandler,
         private readonly _updateBidderProductCommandHandler: UpdateBidderProductCommandHandler,
@@ -33,6 +37,11 @@ export class BidderProductController {
     @ResponseSchema(FindBidderProductQueryOutput)
     async find(@QueryParams() param: FindBidderProductQueryInput): Promise<FindBidderProductQueryOutput> {
         return await this._findBidderProductQueryHandler.handle(param);
+    }
+
+    @Post('/biggest/productIds')
+    async getBiggestByProductIds(@Body() param: GetBiggestByProductIdsQueryInput): Promise<GetBiggestByProductIdsQueryOutput[]> {
+        return await this._getBiggestByProductIdsQueryHandler.handle(param);
     }
 
     @Get('/:id([0-9a-f-]{36})')
