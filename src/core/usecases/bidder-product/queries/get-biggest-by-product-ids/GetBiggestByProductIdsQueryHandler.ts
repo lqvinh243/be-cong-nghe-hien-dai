@@ -19,9 +19,10 @@ export class GetBiggestByProductIdsQueryHandler implements QueryHandler<GetBigge
         for (const productId of param.productIds) {
             const bidderProduct = bidderProducts.find(item => item.productId === productId);
             const result = new GetBiggestByProductIdsQueryOutput();
-            if (bidderProduct)
+            if (bidderProduct) {
                 result.setData(bidderProduct);
-            results.push(result);
+                results.push(result);
+            }
         }
 
         return results;
