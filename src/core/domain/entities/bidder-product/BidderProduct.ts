@@ -38,9 +38,11 @@ export class BidderProduct extends BaseEntity<string, IBidderProduct> implements
     }
 
     set price(val: number) {
-        if (!val)
+        if (validator.isEmpty(val))
             throw new SystemError(MessageError.PARAM_REQUIRED, 'price');
-        if (!validator.isNumber(val) || val <= 0)
+        if (validator.isNumberString(val))
+            val = parseFloat(val.toString());
+        if (!validator.isNumber(val) || val < 0)
             throw new SystemError(MessageError.PARAM_INVALID, 'price');
 
         this.data.price = val;

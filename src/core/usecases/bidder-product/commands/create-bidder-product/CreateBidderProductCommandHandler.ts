@@ -84,7 +84,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
             const bidderProduct = await this._bidderProductRepository.getBiggestByProduct(data.productId);
             if (data.price - product.stepPrice < product.priceNow && bidderProduct)
                 throw new SystemError(MessageError.OTHER, 'Price must be bigger old price and step price!');
-            else if (data.price < product.priceNow)
+            else if (!bidderProduct && data.price < product.priceNow)
                 throw new SystemError(MessageError.PARAM_INVALID, 'price');
         }
 

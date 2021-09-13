@@ -29,12 +29,13 @@ export class ProductFavouriteController {
     @Get('/')
     @OpenAPI({ summary: 'Find productFavourites' })
     @ResponseSchema(FindProductFavouriteQueryOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
     async find(@QueryParams() param: FindProductFavouriteQueryInput): Promise<FindProductFavouriteQueryOutput> {
         return await this._findProductFavouriteQueryHandler.handle(param);
     }
 
     @Get('/productId/:productId([0-9a-f-]{36})/bidder')
-    @Authorized([RoleId.BIDDER])
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
     async getFavourite(@Param('productId') productId: string, @CurrentUser() userAuth: UserAuthenticated): Promise<GetProductFavouriteByBidderQueryOutput> {
         const param = new GetProductFavouriteByBidderQueryInput();
         param.productId = productId;
@@ -45,7 +46,7 @@ export class ProductFavouriteController {
     @Post('/')
     @OpenAPI({ summary: 'Create productFavourite' })
     @ResponseSchema(CreateProductFavouriteCommandOutput)
-    @Authorized([RoleId.BIDDER])
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
     async create(@Body() param: CreateProductFavouriteCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateProductFavouriteCommandOutput> {
         param.userAuthId = userAuth.userId;
         return await this._createProductFavouriteCommandHandler.handle(param);
@@ -54,7 +55,7 @@ export class ProductFavouriteController {
     @Delete('/:id([0-9a-f-]{36})')
     @OpenAPI({ summary: 'Delete productFavourite' })
     @ResponseSchema(DeleteProductFavouriteCommandOutput)
-    @Authorized([RoleId.BIDDER])
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
     async delete(@Param('id') id: string, @CurrentUser() userAuth: UserAuthenticated): Promise<DeleteProductFavouriteCommandOutput> {
         const param = new DeleteProductFavouriteCommandInput();
         param.userAuthId = userAuth.userId;
