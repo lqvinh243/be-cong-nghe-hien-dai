@@ -1,5 +1,5 @@
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
-import { FindProductHaveBeenBiddingByBidder, IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { FindProductHaveBeenBiddingByBidderFilter, IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { QueryHandler } from '@shared/usecase/QueryHandler';
 import { Inject, Service } from 'typedi';
 import { FindProductHaveBeenBiddingByBidderQueryInput } from './FindProductHaveBeenBiddingByBidderQueryInput';
@@ -14,11 +14,11 @@ export class FindProductHaveBeenBiddingByBidderQueryHandler implements QueryHand
     private readonly _bidderProductRepository: IBidderProductRepository;
 
     async handle(param: FindProductHaveBeenBiddingByBidderQueryInput): Promise<FindProductHaveBeenBiddingByBidderQueryOutput> {
-        const filter = new FindProductHaveBeenBiddingByBidder();
+        const filter = new FindProductHaveBeenBiddingByBidderFilter();
         filter.setPagination(param.skip, param.limit);
         filter.bidderId = param.userAuthId;
 
-        const [products, count] = await this._productRepository.findAndCountProductFavourite(filter);
+        const [products, count] = await this._productRepository.findAndCountProductHaveBeenBiddingByBidder(filter);
         const productIds = products.map(item => item.id);
         const result = new FindProductHaveBeenBiddingByBidderQueryOutput();
         result.setData(products);

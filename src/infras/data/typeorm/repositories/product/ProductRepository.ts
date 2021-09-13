@@ -1,6 +1,6 @@
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
-import { FindProductFavouriteFilter, FindProductFilter, FindProductHaveBeenBiddingByBidder, IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { FindProductFavouriteByIdsFilter, FindProductFavouriteFilter, FindProductFilter, FindProductHaveBeenBiddingByBidderFilter, IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { SortType } from '@shared/database/SortType';
 import { ProductSortType } from '@usecases/product/queries/find-product/FindProductQueryInput';
 import { Service } from 'typedi';
@@ -87,14 +87,15 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
         return [list.map(item => item.toEntity()), count];
     }
 
-    async findAndCountProductHaveBeenBiddingByBidder(param: FindProductHaveBeenBiddingByBidder): Promise<[Product[], number]> {
+    async findAndCountProductHaveBeenBiddingByBidder(param: FindProductHaveBeenBiddingByBidderFilter): Promise<[Product[], number]> {
         let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.PRODUCT_STATISTIC}`, PRODUCT_STATISTIC_SCHEMA.TABLE_NAME)
             .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_IMAGE}`, PRODUCT_IMAGE_SCHEMA.TABLE_NAME, `${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.ID} = ${PRODUCT_IMAGE_SCHEMA.TABLE_NAME}.${PRODUCT_IMAGE_SCHEMA.COLUMNS.PRODUCT_ID} AND ${PRODUCT_IMAGE_SCHEMA.TABLE_NAME}.${PRODUCT_IMAGE_SCHEMA.COLUMNS.IS_PRIMARY} = true`)
-            .innerJoin(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_FAVOURITE}`, PRODUCT_FAVOURITE_SCHEMA.TABLE_NAME)
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_FAVOURITE}`, PRODUCT_FAVOURITE_SCHEMA.TABLE_NAME, `${PRODUCT_FAVOURITE_SCHEMA.TABLE_NAME}.${PRODUCT_FAVOURITE_SCHEMA.COLUMNS.BIDDER_ID} = :bidderId`, { bidderId: param.bidderId })
             .innerJoin(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.BIDDER_PRODUCT}`, BIDDER_PRODUCT_SCHEMA.TABLE_NAME)
-            .where(`${PRODUCT_FAVOURITE_SCHEMA.TABLE_NAME}.${PRODUCT_FAVOURITE_SCHEMA.COLUMNS.BIDDER_ID} = :bidderId`, { bidderId: param.bidderId });
+            .where(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.COLUMNS.BIDDER_ID} = :bidderId`, { bidderId: param.bidderId })
+            .andWhere(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.STATUS} = :status`, { status: ProductStatus.PROCESSS });
 
         query = query
             .skip(param.skip)
@@ -102,6 +103,15 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
 
         const [list, count] = await query.getManyAndCount();
         return [list.map(item => item.toEntity()), count];
+    }
+
+    async findProductFavouriteByIds(param: FindProductFavouriteByIdsFilter): Promise<Product[]> {
+        const query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_FAVOURITE}`, PRODUCT_FAVOURITE_SCHEMA.TABLE_NAME, `${PRODUCT_FAVOURITE_SCHEMA.TABLE_NAME}.${PRODUCT_FAVOURITE_SCHEMA.COLUMNS.BIDDER_ID} = :bidderId`, { bidderId: param.bidderId })
+            .whereInIds([...param.ids]);
+        const list = await query.getMany();
+
+        return list.map(item => item.toEntity());
     }
 
     async getAll(statuses: ProductStatus[]): Promise<Product[]> {
