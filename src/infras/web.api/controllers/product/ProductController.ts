@@ -25,6 +25,9 @@ import { UpdateStatusProductToProgressCommandInput } from '@usecases/product/com
 import { UpdateStatusProductToProgressCommandOutput } from '@usecases/product/commands/update-status-product-to-progress/UpdateStatusProductToProgressCommandOutput';
 import { UploadMultipleProductImageCommandHandler } from '@usecases/product/commands/upload-multiple-product-image/UploadMultipleProductImageCommandHandler';
 import { UploadMultipleProductImageCommandInput } from '@usecases/product/commands/upload-multiple-product-image/UploadMultipleProductImageCommandInput';
+import { FindProductByWinnerIdQueryHandler } from '@usecases/product/queries/find-product-by-winner-id/FindProductByWinnerIdQueryHandler';
+import { FindProductByWinnerIdQueryInput } from '@usecases/product/queries/find-product-by-winner-id/FindProductByWinnerIdQueryInput';
+import { FindProductByWinnerIdQueryOutput } from '@usecases/product/queries/find-product-by-winner-id/FindProductByWinnerIdQueryOutput';
 import { FindProductFavouriteByProductIdsQueryHandler } from '@usecases/product/queries/find-product-favourite-by-product-ids/FindProductFavouriteByProductIdsQueryHandler';
 import { FindProductFavouriteByProductIdsQueryInput } from '@usecases/product/queries/find-product-favourite-by-product-ids/FindProductFavouriteByProductIdsQueryInput';
 import { FindProductFavouriteByProductIdsQueryOutput } from '@usecases/product/queries/find-product-favourite-by-product-ids/FindProductFavouriteByProductIdsQueryOutput';
@@ -55,6 +58,7 @@ export class ProductController {
         private readonly _findProductFavouriteQueryHandler: FindProductFavouriteQueryHandler,
         private readonly _findProductFavouriteByProductIdsQueryHandler: FindProductFavouriteByProductIdsQueryHandler,
         private readonly _findProductHaveBeenBiddingByBidderQueryHandler: FindProductHaveBeenBiddingByBidderQueryHandler,
+        private readonly _findProductByWinnerIdQueryHandler: FindProductByWinnerIdQueryHandler,
         private readonly _getProductByIdQueryHandler: GetProductByIdQueryHandler,
         private readonly _getProductBySellerQueryHandler: GetProductBySellerQueryHandler,
         private readonly _createProductCommandHandler: CreateProductCommandHandler,
@@ -97,9 +101,18 @@ export class ProductController {
     @OpenAPI({ summary: 'Find products have been bidding' })
     @ResponseSchema(FindProductQueryOutput)
     @Authorized([RoleId.BIDDER, RoleId.SELLER])
-    async findhaveBeenBidding(@QueryParams() param: FindProductHaveBeenBiddingByBidderQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductHaveBeenBiddingByBidderQueryOutput> {
+    async findHaveBeenBidding(@QueryParams() param: FindProductHaveBeenBiddingByBidderQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductHaveBeenBiddingByBidderQueryOutput> {
         param.userAuthId = userAuth.userId;
         return await this._findProductHaveBeenBiddingByBidderQueryHandler.handle(param);
+    }
+
+    @Get('/win')
+    @OpenAPI({ summary: 'Find products by winner' })
+    @ResponseSchema(FindProductQueryOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
+    async findProductByWinner(@QueryParams() param: FindProductByWinnerIdQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductByWinnerIdQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._findProductByWinnerIdQueryHandler.handle(param);
     }
 
     @Get('/:id([0-9a-f-]{36})')
