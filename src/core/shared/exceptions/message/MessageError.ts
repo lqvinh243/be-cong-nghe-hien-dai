@@ -12,6 +12,7 @@ export class MessageError {
 
     static UNAUTHORIZED = new ErrorObject(ErrorCode.UNAUTHORIZED, 'Unauthorized!');
     static ACCESS_DENIED = new ErrorObject(ErrorCode.ACCESS_DENIED, 'Access is denied!');
+    static ACCESS_DENIED_VI = new ErrorObject(ErrorCode.ACCESS_DENIED, 'Vui lòng thử lại sau!');
 
     static DATA_NOT_FOUND = new ErrorObject(ErrorCode.DATA_NOT_FOUND, 'Data not found!');
     static PARAM_NOT_FOUND = new ErrorObject(ErrorCode.DATA_NOT_FOUND, 'The {0} was not found!');

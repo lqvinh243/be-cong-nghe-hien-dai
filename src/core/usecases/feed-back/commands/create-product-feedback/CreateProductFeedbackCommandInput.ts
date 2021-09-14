@@ -1,10 +1,9 @@
 import { ProductFeedbackType } from '@domain/enums/feed-back/ProductFeedbackType';
-import { RoleId } from '@domain/enums/user/RoleId';
 import { IsEnum, IsString, IsUUID } from 'class-validator';
 
 export class CreateProductFeedbackCommandInput {
     userAuthId: string;
-    roleAuthId: RoleId;
+    roleAuthId: string;
 
     @IsUUID()
     productId: string;

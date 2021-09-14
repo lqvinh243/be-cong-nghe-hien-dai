@@ -41,10 +41,9 @@ export class ProductFeedbackRepository extends BaseRepository<string, ProductFee
         return { up: upItem ? parseFloat(upItem.total) : null, down: downItem ? parseFloat(downItem.total) : null };
     }
 
-    async checkDataExistAndGet(ownerId: string, receiverId: string, productId: string): Promise<ProductFeedback | null> {
+    async checkDataExistAndGet(ownerId: string, productId: string): Promise<ProductFeedback | null> {
         const query = this.repository.createQueryBuilder(PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME)
             .where(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.OWNER_ID} = :ownerId`, { ownerId })
-            .andWhere(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.RECEIVER_ID} = :receiverId`, { receiverId })
             .andWhere(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.PRODUCT_ID} = :productId`, { productId });
 
         const result = await query.getOne();

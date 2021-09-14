@@ -21,8 +21,13 @@ export class FindProductHaveBeenBiddingByBidderFilter extends DbPaginationFilter
     keyword: string | null;
 }
 
-export class FindAndCountProductByWinnerIdFilter extends DbPaginationFilter {
+export class FindProductByWinnerIdFilter extends DbPaginationFilter {
     winnerId: string;
+}
+
+export class FindProductBySellerFilter extends DbPaginationFilter {
+    sellerId: string;
+    statuses: ProductStatus[];
 }
 
 export class FindProductFavouriteByIdsFilter {
@@ -37,7 +42,9 @@ export interface IProductRepository extends IBaseRepository<string, Product> {
 
     findAndCountProductHaveBeenBiddingByBidder(param: FindProductHaveBeenBiddingByBidderFilter): Promise<[Product[], number]>;
 
-    findAndCountProductByWinnerId(param: FindAndCountProductByWinnerIdFilter): Promise<[Product[], number]>;
+    findAndCountProductByWinnerId(param: FindProductByWinnerIdFilter): Promise<[Product[], number]>;
+
+    findAndCountBySeller(param: FindProductBySellerFilter): Promise<[Product[], number]>;
 
     findProductFavouriteByIds(param: FindProductFavouriteByIdsFilter): Promise<Product[]>;
 

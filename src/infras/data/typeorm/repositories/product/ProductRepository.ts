@@ -1,6 +1,6 @@
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
-import { FindAndCountProductByWinnerIdFilter, FindProductFavouriteByIdsFilter, FindProductFavouriteFilter, FindProductFilter, FindProductHaveBeenBiddingByBidderFilter, IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { FindProductBySellerFilter, FindProductByWinnerIdFilter, FindProductFavouriteByIdsFilter, FindProductFavouriteFilter, FindProductFilter, FindProductHaveBeenBiddingByBidderFilter, IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { SortType } from '@shared/database/SortType';
 import { ProductSortType } from '@usecases/product/queries/find-product/FindProductQueryInput';
 import { Service } from 'typedi';
@@ -105,7 +105,7 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
         return [list.map(item => item.toEntity()), count];
     }
 
-    async findAndCountProductByWinnerId(param: FindAndCountProductByWinnerIdFilter): Promise<[Product[], number]> {
+    async findAndCountProductByWinnerId(param: FindProductByWinnerIdFilter): Promise<[Product[], number]> {
         let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.PRODUCT_STATISTIC}`, PRODUCT_STATISTIC_SCHEMA.TABLE_NAME)
@@ -115,6 +115,25 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
             .where(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.WINNER_ID} = :winnerId`, { winnerId: param.winnerId });
 
         query = query
+            .skip(param.skip)
+            .take(param.limit);
+
+        const [list, count] = await query.getManyAndCount();
+        return [list.map(item => item.toEntity()), count];
+    }
+
+    async findAndCountBySeller(param: FindProductBySellerFilter): Promise<[Product[], number]> {
+        let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.PRODUCT_STATISTIC}`, PRODUCT_STATISTIC_SCHEMA.TABLE_NAME)
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.WINNER}`, CLIENT_SCHEMA.TABLE_NAME)
+            .where(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.SELLER_ID} = :sellerId`, { sellerId: param.sellerId });
+
+        if (param.statuses && param.statuses.length)
+            query = query.andWhere(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.STATUS} = ANY(:statuses)`, { statuses: param.statuses });
+
+        query = query
+            .orderBy(`${PRODUCT_SCHEMA.TABLE_NAME}.expiredAt`, SortType.ASC)
             .skip(param.skip)
             .take(param.limit);
 

@@ -1,3 +1,4 @@
+import { BidderProduct } from '@domain/entities/bidder-product/BidderProduct';
 import { Category } from '@domain/entities/category/Category';
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatistic } from '@domain/entities/statistic/ProductStatistic';
@@ -27,6 +28,33 @@ export class ClientData {
         this.lastName = data.lastName;
         this.email = data.email;
         this.avatar = data.avatar;
+    }
+}
+
+export class BidderData {
+    @IsString()
+    firstName: string | null;
+
+    @IsString()
+    @IsOptional()
+    lastName: string | null;
+
+    @IsString()
+    email: string | null;
+
+    @IsString()
+    @IsOptional()
+    avatar: string | null;
+
+    @IsNumber()
+    price: number;
+
+    constructor(data: BidderProduct) {
+        this.price = data.price;
+        this.firstName = data.bidder && data.bidder.firstName;
+        this.lastName = data.bidder && data.bidder.lastName;
+        this.email = data.bidder && data.bidder.email;
+        this.avatar = data.bidder && data.bidder.avatar;
     }
 }
 
@@ -81,6 +109,7 @@ export class FindProductQueryData {
 
     statistic: ProductStatictisData | null;
     category: CategoryData | null;
+    bidder: ClientData | null;
     winner: ClientData | null;
 
     constructor(data: Product) {
@@ -96,11 +125,16 @@ export class FindProductQueryData {
         this.isFavourite = !!(data.productFavourites && data.productFavourites.length);
         this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
         this.category = data.category && new CategoryData(data.category);
+        this.bidder = null;
         this.winner = data.winner ? new ClientData(data.winner) : null;
+    }
+
+    setBidder(data: BidderProduct): void {
+        this.bidder = new BidderData(data);
     }
 }
 
-export class FindProductByWinnerIdQueryOutput extends PaginationResponse<FindProductQueryData> {
+export class FindProductBySellerQueryOutput extends PaginationResponse<FindProductQueryData> {
     @IsArray()
     @RefSchemaArray(FindProductQueryData)
     data: FindProductQueryData[];

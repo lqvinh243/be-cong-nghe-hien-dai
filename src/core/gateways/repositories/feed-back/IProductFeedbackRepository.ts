@@ -11,6 +11,6 @@ export interface IProductFeedbackRepository extends IBaseRepository<string, Prod
 
     getByReceiverId(receiverId: string): Promise<{up: number | null, down: number | null}>
 
-    checkDataExistAndGet(ownerId: string, receiverId: string, productId: string): Promise<ProductFeedback | null>
+    checkDataExistAndGet(ownerId: string, productId: string): Promise<ProductFeedback | null>
 
 }

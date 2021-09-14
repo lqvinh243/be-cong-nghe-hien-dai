@@ -1,4 +1,4 @@
-import { FindAndCountProductByWinnerIdFilter, IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { FindProductByWinnerIdFilter, IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { QueryHandler } from '@shared/usecase/QueryHandler';
 import { Inject, Service } from 'typedi';
 import { FindProductByWinnerIdQueryInput } from './FindProductByWinnerIdQueryInput';
@@ -12,7 +12,7 @@ export class FindProductByWinnerIdQueryHandler implements QueryHandler<FindProdu
     async handle(param: FindProductByWinnerIdQueryInput): Promise<FindProductByWinnerIdQueryOutput> {
         const result = new FindProductByWinnerIdQueryOutput();
 
-        const filter = new FindAndCountProductByWinnerIdFilter();
+        const filter = new FindProductByWinnerIdFilter();
         filter.setPagination(param.skip, param.limit);
         filter.winnerId = param.userAuthId;
         const [products, count] = await this._productRepository.findAndCountProductByWinnerId(filter);
