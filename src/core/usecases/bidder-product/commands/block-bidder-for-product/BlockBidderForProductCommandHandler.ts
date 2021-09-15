@@ -42,9 +42,9 @@ export class BlockBidderForProductCommandHandler implements CommandHandler<Block
         if (product.sellerId !== param.userAuthId)
             throw new SystemError(MessageError.ACCESS_DENIED);
 
-        const id = await this._bidderProductRepository.create(data);
+        const hasSucceed = await this._bidderProductRepository.update(param.id, data);
         const result = new BlockBidderForProductCommandOutput();
-        result.setData(id);
+        result.setData(hasSucceed);
 
         this._mailService.sendRejectBid(`${bidder.firstName} ${bidder.lastName ?? ''}`.trim(), bidder.email, product);
 

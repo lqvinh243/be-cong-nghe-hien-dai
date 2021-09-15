@@ -3,6 +3,8 @@ import { DbPaginationFilter } from '@shared/database/DbPaginationFilter';
 import { IBaseRepository } from '@shared/database/interfaces/IBaseRepository';
 
 export class FindBidderProductFilter extends DbPaginationFilter {
+    productId: string;
+    isBlock: boolean | null;
     keyword: string | null;
 }
 

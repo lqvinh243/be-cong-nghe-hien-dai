@@ -31,7 +31,7 @@ export class BidderProductAutoRepository extends BaseRepository<string, BidderPr
 
         query = query.orderBy(`${BIDDER_PRODUCT_AUTO_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_AUTO_SCHEMA.COLUMNS.MAX_PRICE}`, SortType.DESC)
             .addOrderBy(`${BIDDER_PRODUCT_AUTO_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_AUTO_SCHEMA.COLUMNS.CREATED_AT}`, SortType.ASC);
-        query = query.limit(2);
+        query = query.limit(1);
 
         const result = await query.getOne();
         return result ? result.toEntity() : null;
