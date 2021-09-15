@@ -6,6 +6,8 @@ import { IBidderProductAutoRepository } from '@gateways/repositories/bidder-prod
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IBidderProductStepRepository } from '@gateways/repositories/bidder-product/IBidderProductStepRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { IClientRepository } from '@gateways/repositories/user/IClientRepository';
+import { IMailService } from '@gateways/services/IMailService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
@@ -41,6 +43,12 @@ export class CreateBidderProductAutoCommandHandler implements CommandHandler<Cre
 
     @Inject('db.context')
     private readonly _dbContext: IDbContext;
+
+    @Inject('mail.service')
+    private readonly _mailService: IMailService;
+
+    @Inject('client.repository')
+    private readonly _clientRepository: IClientRepository;
 
     async handle(param: CreateBidderProductAutoCommandInput): Promise<CreateBidderProductAutoCommandOutput> {
         const data = new BidderProductAuto();
@@ -127,6 +135,10 @@ export class CreateBidderProductAutoCommandHandler implements CommandHandler<Cre
                     paramStatistic.productId = product.id;
                     paramStatistic.isAuction = true;
                     this._createProductStatisticCommandHandler.handle(paramStatistic);
+
+                    const bidder = await this._clientRepository.getById(param.userAuthId);
+                    if (bidder)
+                        this._mailService.sendFailBid('Người đặt giá', [bidder.email], product);
                 });
             }
         }

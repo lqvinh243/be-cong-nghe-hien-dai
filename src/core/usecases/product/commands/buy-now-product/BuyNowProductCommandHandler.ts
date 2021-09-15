@@ -3,6 +3,8 @@ import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { IBidderProductAutoRepository } from '@gateways/repositories/bidder-product/IBidderProductAutoRepository';
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { IClientRepository } from '@gateways/repositories/user/IClientRepository';
+import { IMailService } from '@gateways/services/IMailService';
 import { IQueueJobService } from '@gateways/services/IQueueJobService';
 import { ISearchService } from '@gateways/services/ISearchService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
@@ -40,6 +42,12 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
     @Inject('bidder_product.repository')
     private readonly _bidderProductRepository: IBidderProductRepository;
 
+    @Inject('mail.service')
+    private readonly _mailService: IMailService;
+
+    @Inject('client.repository')
+    private readonly _clientRepository: IClientRepository;
+
     async handle(param: BuyNowProductCommandInput): Promise<BuyNowProductCommandOutput> {
         let idDelete = '';
         let winnerId = param.userAuthId;
@@ -47,27 +55,43 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
         paramStatistic.productId = param.productId;
         paramStatistic.isAuction = true;
 
+        const product = await this._productRepository.getById(param.productId);
+        if (!product || product.status !== ProductStatus.PROCESSS)
+            throw new SystemError(MessageError.DATA_NOT_FOUND);
+
+        if (product.sellerId === param.userAuthId)
+            throw new SystemError(MessageError.OTHER, 'Bạn không thể mua sản phẩm của chính mình!');
+
+        const buyer = await this._clientRepository.getById(param.userAuthId);
+        if (!buyer)
+            throw new SystemError(MessageError.DATA_INVALID);
+
+        const emails: string[] = [];
+
         const bidderProduct = await this._bidderProductRepository.checkDataExistAndGet(param.userAuthId, param.productId);
         if (bidderProduct && bidderProduct.isBlock)
             throw new SystemError(MessageError.OTHER, 'You cannot buy this product!');
 
+        const bidderProductBiggest = await this._bidderProductRepository.getBiggestByProduct(param.productId);
+        if (bidderProductBiggest) {
+            const client = await this._clientRepository.getById(bidderProductBiggest.bidderId);
+            if (client)
+                emails.push(client.email);
+        }
+
         await this._dbContext.getConnection().runTransaction(async queryRunner => {
-            const product = await this._productRepository.getById(param.productId, queryRunner);
-            if (!product || product.status !== ProductStatus.PROCESSS || !product.bidPrice)
-                throw new SystemError(MessageError.DATA_NOT_FOUND);
-
-            if (product.sellerId === param.userAuthId)
-                throw new SystemError(MessageError.OTHER, 'Bạn không thể mua sản phẩm của chính mình!');
-
             idDelete = product.id;
+            if (!product.bidPrice)
+                throw new SystemError(MessageError.DATA_INVALID);
 
             const bidderAuto = await this._bidderProductAutoRepository.getBiggestByProduct(product.id);
-
             const productData = new Product();
             productData.status = ProductStatus.END;
             productData.priceNow = product.bidPrice;
-            if (bidderAuto && bidderAuto.maxPrice >= product.bidPrice)
+            if (bidderAuto && bidderAuto.maxPrice >= product.bidPrice) {
+                emails.push(buyer.email);
                 winnerId = bidderAuto.bidderId;
+            }
 
             productData.winnerId = winnerId;
 
@@ -84,6 +108,15 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
                 await job.remove();
             if (param.userAuthId !== winnerId)
                 this._createProductStatisticCommandHandler.handle(paramStatistic);
+
+            const winner = await this._clientRepository.getById(winnerId);
+            const seller = await this._clientRepository.getById(product.sellerId);
+            if (winner && seller) {
+                this._mailService.sendCongratulationsWin(`${winner.firstName} ${winner.lastName ?? ''}`.trim(), winner.email, product);
+                this._mailService.sendCongratulationsWinForSeller(`${seller.firstName} ${seller.lastName ?? ''}`.trim(), seller.email, product);
+            }
+
+            this._mailService.sendFailBid('Người đặt giá', emails, product);
 
             this._searchService.delete([idDelete]);
         }, TransactionIsolationLevel.REPEATABLE_READ);

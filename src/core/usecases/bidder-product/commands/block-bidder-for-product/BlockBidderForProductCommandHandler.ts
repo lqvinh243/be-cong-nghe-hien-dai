@@ -1,6 +1,8 @@
 import { BidderProduct } from '@domain/entities/bidder-product/BidderProduct';
 import { IBidderProductRepository } from '@gateways/repositories/bidder-product/IBidderProductRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { IClientRepository } from '@gateways/repositories/user/IClientRepository';
+import { IMailService } from '@gateways/services/IMailService';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
@@ -16,12 +18,22 @@ export class BlockBidderForProductCommandHandler implements CommandHandler<Block
     @Inject('product.repository')
     private readonly _productRepository: IProductRepository;
 
+    @Inject('mail.service')
+    private readonly _mailService: IMailService;
+
+    @Inject('client.repository')
+    private readonly _clientRepository: IClientRepository;
+
     async handle(param: BlockBidderForProductCommandInput): Promise<BlockBidderForProductCommandOutput> {
         const data = new BidderProduct();
         data.isBlock = true;
 
         const bidderProduct = await this._bidderProductRepository.getById(param.id);
         if (!bidderProduct)
+            throw new SystemError(MessageError.DATA_NOT_FOUND);
+
+        const bidder = await this._clientRepository.getById(bidderProduct.bidderId);
+        if (!bidder)
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
         const product = await this._productRepository.getById(bidderProduct.productId);
@@ -33,6 +45,9 @@ export class BlockBidderForProductCommandHandler implements CommandHandler<Block
         const id = await this._bidderProductRepository.create(data);
         const result = new BlockBidderForProductCommandOutput();
         result.setData(id);
+
+        this._mailService.sendRejectBid(`${bidder.firstName} ${bidder.lastName ?? ''}`.trim(), bidder.email, product);
+
         return result;
     }
 }

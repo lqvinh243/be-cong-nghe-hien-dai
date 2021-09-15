@@ -1,4 +1,5 @@
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { ISearchService } from '@gateways/services/ISearchService';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
@@ -11,6 +12,9 @@ export class DeleteProductCommandHandler implements CommandHandler<string, Delet
     @Inject('product.repository')
     private readonly _productRepository: IProductRepository;
 
+    @Inject('search.service')
+    private readonly _searchService: ISearchService;
+
     async handle(id: string): Promise<DeleteProductCommandOutput> {
         const product = await this._productRepository.getById(id);
         if (!product)
@@ -19,6 +23,7 @@ export class DeleteProductCommandHandler implements CommandHandler<string, Delet
         const hasSucceed = await this._productRepository.softDelete(id);
         const result = new DeleteClientCommandOutput();
         result.setData(hasSucceed);
+        this._searchService.delete([product.id]);
         return result;
     }
 }

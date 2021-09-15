@@ -7,6 +7,8 @@ import { IBidderProductRepository } from '@gateways/repositories/bidder-product/
 import { IBidderProductStepRepository } from '@gateways/repositories/bidder-product/IBidderProductStepRepository';
 import { IProductFeedbackRepository } from '@gateways/repositories/feed-back/IProductFeedbackRepository';
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
+import { IClientRepository } from '@gateways/repositories/user/IClientRepository';
+import { IMailService } from '@gateways/services/IMailService';
 import { IQueueJobService } from '@gateways/services/IQueueJobService';
 import { ISearchService } from '@gateways/services/ISearchService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
@@ -51,27 +53,34 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
     @Inject('search.service')
     private readonly _searchService: ISearchService;
 
+    @Inject('mail.service')
+    private readonly _mailService: IMailService;
+
+    @Inject('client.repository')
+    private readonly _clientRepository: IClientRepository;
+
     async handle(param: CreateBidderProductCommandInput): Promise<CreateBidderProductCommandOutput> {
+        let bidderId = param.userAuthId;
+
         const data = new BidderProduct();
         data.productId = param.productId;
-        data.bidderId = param.userAuthId;
 
         const product = await this._productRepository.getById(data.productId);
         if (!product || product.status !== ProductStatus.PROCESSS)
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
-        if (data.bidderId === product.sellerId)
+        if (bidderId === product.sellerId)
             throw new SystemError(MessageError.OTHER, 'You cannot bid your product!');
 
         data.price = product.bidPrice && param.price > product.bidPrice ? product.bidPrice : param.price;
         if (param.isManual) {
             const bidderProductAuto = await this._bidderProductAutoRepository.getBiggestByProduct(data.productId);
             if (bidderProductAuto && bidderProductAuto.maxPrice >= data.price)
-                data.bidderId = bidderProductAuto.bidderId;
+                bidderId = bidderProductAuto.bidderId;
         }
 
         if (product.isStricten) {
-            const rates = await this._productFeedbackRepository.getByReceiverId(data.bidderId);
+            const rates = await this._productFeedbackRepository.getByReceiverId(bidderId);
             if (rates.down && rates.up) {
                 const rate = (rates.up / rates.down) * 100;
                 if (rate < 80)
@@ -93,6 +102,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
         const bidderProduct = await this._bidderProductRepository.checkDataExistAndGet(data.bidderId, data.productId);
         const id = await this._dbContext.getConnection().runTransaction(async (queryRunner) => {
             let id: string | null = null;
+            data.bidderId = bidderId;
             if (bidderProduct) {
                 if (bidderProduct.isBlock)
                     throw new SystemError(MessageError.OTHER, 'You cannot bid this product!');
@@ -128,32 +138,44 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                 if (job)
                     await job.remove();
 
+                const winner = await this._clientRepository.getById(bidderId);
+                const seller = await this._clientRepository.getById(product.sellerId);
+                if (winner && seller) {
+                    this._mailService.sendCongratulationsWin(`${winner.firstName} ${winner.lastName ?? ''}`.trim(), winner.email, product);
+                    this._mailService.sendCongratulationsWinForSeller(`${seller.firstName} ${seller.lastName ?? ''}`.trim(), seller.email, product);
+                }
+
                 this._searchService.delete([key]);
             }
 
-            if (param.userAuthId !== data.bidderId) {
+            if (param.userAuthId !== bidderId) {
                 this._dbContext.getConnection().runTransaction(async queryRunner => {
-                    const dataBid = new BidderProduct();
-                    dataBid.productId = data.productId;
-                    dataBid.bidderId = param.userAuthId;
-                    dataBid.price = data.price;
-                    let id: string| null = null;
-                    if (bidderProduct) {
-                        id = bidderProduct.id;
-                        await this._bidderProductRepository.update(id, dataBid, queryRunner);
+                    const bidder = await this._clientRepository.getById(param.userAuthId);
+                    if (bidder) {
+                        const dataBid = new BidderProduct();
+                        dataBid.productId = data.productId;
+                        dataBid.bidderId = param.userAuthId;
+                        dataBid.price = data.price;
+                        let id: string| null = null;
+                        if (bidderProduct) {
+                            id = bidderProduct.id;
+                            await this._bidderProductRepository.update(id, dataBid, queryRunner);
+                        }
+                        else
+                            id = await this._bidderProductRepository.create(dataBid, queryRunner);
+
+                        const bidderProductStep = new BidderProductStep();
+                        bidderProductStep.bidderProductId = id;
+                        bidderProductStep.price = data.price;
+
+                        await this._bidderProductStepRepository.create(bidderProductStep, queryRunner);
+                        const paramStatistic = new CreateProductStatisticCommandInput();
+                        paramStatistic.productId = product.id;
+                        paramStatistic.isAuction = true;
+                        this._createProductStatisticCommandHandler.handle(paramStatistic);
+
+                        this._mailService.sendFailBid('Người đặt giá', [bidder.email], product);
                     }
-                    else
-                        id = await this._bidderProductRepository.create(dataBid, queryRunner);
-
-                    const bidderProductStep = new BidderProductStep();
-                    bidderProductStep.bidderProductId = id;
-                    bidderProductStep.price = data.price;
-
-                    await this._bidderProductStepRepository.create(bidderProductStep, queryRunner);
-                    const paramStatistic = new CreateProductStatisticCommandInput();
-                    paramStatistic.productId = product.id;
-                    paramStatistic.isAuction = true;
-                    this._createProductStatisticCommandHandler.handle(paramStatistic);
                 });
             }
         }, transactionLevel);
