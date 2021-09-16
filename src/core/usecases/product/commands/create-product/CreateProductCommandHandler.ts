@@ -47,7 +47,8 @@ export class CreateProductCommandHandler implements CommandHandler<CreateProduct
         data.name = param.name;
         data.sellerId = param.userAuthId;
         data.categoryId = param.categoryId;
-        data.priceNow = 0;
+        data.startPrice = param.startPrice ?? 0;
+        data.priceNow = data.startPrice;
         data.bidPrice = param.bidPrice;
         data.stepPrice = param.stepPrice;
         data.expiredAt = param.expiredAt;

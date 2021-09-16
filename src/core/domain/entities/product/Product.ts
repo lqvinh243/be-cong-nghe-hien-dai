@@ -77,6 +77,21 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
         this.data.status = val;
     }
 
+    get startPrice(): number {
+        return this.data.startPrice;
+    }
+
+    set startPrice(val: number) {
+        if (validator.isEmpty(val))
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'startPrice');
+        if (validator.isNumberString(val))
+            val = parseFloat(val.toString());
+        if (!validator.isNumber(val) || val < 0)
+            throw new SystemError(MessageError.PARAM_INVALID, 'startPrice');
+
+        this.data.startPrice = val;
+    }
+
     get priceNow(): number {
         return this.data.priceNow;
     }

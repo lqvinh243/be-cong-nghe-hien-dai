@@ -38,6 +38,9 @@ export class ProductDb extends BaseDbEntity<string, Product> implements IProduct
     @Column('enum', { name: PRODUCT_SCHEMA.COLUMNS.STATUS, enum: ProductStatus, default: ProductStatus.DRAFT })
     status: ProductStatus;
 
+    @Column('decimal', { name: PRODUCT_SCHEMA.COLUMNS.PRICE_NOW, transformer: new NumericTransformer(), default: 0 })
+    startPrice: number;
+
     @Column('decimal', { name: PRODUCT_SCHEMA.COLUMNS.PRICE_NOW, transformer: new NumericTransformer() })
     priceNow: number;
 

@@ -10,6 +10,7 @@ export const PRODUCT_SCHEMA = {
         WINNER_ID: 'winner_id',
         CATEGORY_ID: 'category_id',
         STATUS: 'status',
+        START_PRICE: 'start_price',
         PRICE_NOW: 'price_now',
         BID_PRICE: 'bid_price',
         STEP_PRICE: 'step_price',

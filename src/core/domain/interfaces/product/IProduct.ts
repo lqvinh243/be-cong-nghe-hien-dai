@@ -14,6 +14,7 @@ export interface IProduct extends IEntity<string> {
     winnerId: string | null;
     categoryId: string;
     status: ProductStatus;
+    startPrice: number;
     priceNow: number;
     bidPrice: number | null;
     stepPrice: number;

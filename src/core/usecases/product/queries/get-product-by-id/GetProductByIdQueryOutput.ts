@@ -71,7 +71,7 @@ export class BidderData {
     }
 }
 
-export class SellerData {
+export class ClientData {
     @IsString()
     firstName: string;
 
@@ -137,8 +137,12 @@ export class GetProductByIdQueryData {
     @IsBoolean()
     isFavourite: boolean;
 
-    seller: SellerData | null;
+    @IsUUID()
+    winnerId: string | null;
+
+    seller: ClientData | null;
     bidder: BidderData | null;
+    winner: ClientData | null;
     category: CategoryData | null;
     productImages: ProductImageData[] | null;
     productDescription: ProductDescription[] | null;
@@ -154,10 +158,12 @@ export class GetProductByIdQueryData {
         this.stepPrice = data.stepPrice;
         this.expiredAt = data.expiredAt;
         this.isFavourite = !!(data.productFavourites && data.productFavourites.length);
+        this.winnerId = data.winnerId;
         this.rateSeller = null;
 
-        this.seller = data.seller && new SellerData(data.seller);
+        this.seller = data.seller && new ClientData(data.seller);
         this.bidder = null;
+        this.winner = data.winner && new ClientData(data.winner);
         this.category = data.category && new CategoryData(data.category);
         this.productImages = data.productImages && data.productImages.map(item => new ProductImageData(item));
         this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);

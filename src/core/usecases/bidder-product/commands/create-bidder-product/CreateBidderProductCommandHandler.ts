@@ -9,18 +9,18 @@ import { IProductFeedbackRepository } from '@gateways/repositories/feed-back/IPr
 import { IProductRepository } from '@gateways/repositories/product/IProductRepository';
 import { IClientRepository } from '@gateways/repositories/user/IClientRepository';
 import { IMailService } from '@gateways/services/IMailService';
-import { IQueueJobService } from '@gateways/services/IQueueJobService';
-import { ISearchService } from '@gateways/services/ISearchService';
+import { ISocketEmitterService } from '@gateways/services/ISocketEmitterService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
-import { TransactionIsolationLevel } from '@shared/database/TransactionIsolationLevel';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
-import { QueueJobName } from '@shared/queue/QueueJobName';
+import { BidNS } from '@shared/socket/namespaces/BidNS';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
+import { BuyNowProductCommandHandler } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandHandler';
+import { BuyNowProductCommandInput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandInput';
 import { CreateProductStatisticCommandHandler } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandHandler';
 import { CreateProductStatisticCommandInput } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandInput';
-import { CreateClientCommandOutput } from '@usecases/user/client/commands/create-client/CreateClientCommandOutput';
 import { Inject, Service } from 'typedi';
+import { BidPriceChangeSocketOuput } from './BidPriceChangeSocketOuput';
 import { CreateBidderProductCommandInput } from './CreateBidderProductCommandInput';
 import { CreateBidderProductCommandOutput } from './CreateBidderProductCommandOutput';
 
@@ -28,6 +28,9 @@ import { CreateBidderProductCommandOutput } from './CreateBidderProductCommandOu
 export class CreateBidderProductCommandHandler implements CommandHandler<CreateBidderProductCommandInput, CreateBidderProductCommandOutput> {
     @Inject()
     private readonly _createProductStatisticCommandHandler: CreateProductStatisticCommandHandler;
+
+    @Inject()
+    private readonly _buyNowProductCommandHandler: BuyNowProductCommandHandler;
 
     @Inject('product.repository')
     private readonly _productRepository: IProductRepository;
@@ -47,17 +50,14 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
     @Inject('db.context')
     private readonly _dbContext: IDbContext;
 
-    @Inject('queue_job.service')
-    private readonly _queueService: IQueueJobService;
-
-    @Inject('search.service')
-    private readonly _searchService: ISearchService;
-
     @Inject('mail.service')
     private readonly _mailService: IMailService;
 
     @Inject('client.repository')
     private readonly _clientRepository: IClientRepository;
+
+    @Inject('socket_emitter.service')
+    private readonly _sockerEmmiterService: ISocketEmitterService;
 
     async handle(param: CreateBidderProductCommandInput): Promise<CreateBidderProductCommandOutput> {
         let bidderId = param.userAuthId;
@@ -97,10 +97,21 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                 throw new SystemError(MessageError.PARAM_INVALID, 'price');
         }
 
-        const transactionLevel = product.bidPrice && data.price >= product.bidPrice ? TransactionIsolationLevel.REPEATABLE_READ : TransactionIsolationLevel.READ_COMMITTED;
+        if (product.bidPrice && data.price >= product.bidPrice) {
+            const paramBuyNow = new BuyNowProductCommandInput();
+            paramBuyNow.productId = product.id;
+            paramBuyNow.userAuthId = param.userAuthId;
+            await this._buyNowProductCommandHandler.handle(paramBuyNow);
+
+            const result = new CreateBidderProductCommandOutput();
+            result.setData(true);
+            return result;
+        }
+        const socketResult = new BidPriceChangeSocketOuput();
+        socketResult.id = product.id;
 
         const bidderProduct = await this._bidderProductRepository.checkDataExistAndGet(data.bidderId, data.productId);
-        const id = await this._dbContext.getConnection().runTransaction(async (queryRunner) => {
+        await this._dbContext.getConnection().runTransaction(async (queryRunner) => {
             let id: string | null = null;
             data.bidderId = bidderId;
             if (bidderProduct) {
@@ -120,34 +131,13 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
             await this._bidderProductStepRepository.create(bidderProductStep, queryRunner);
             const productData = new Product();
             productData.priceNow = data.price;
-            if (product.bidPrice && data.price >= product.bidPrice) {
-                productData.winnerId = param.userAuthId;
-                productData.status = ProductStatus.END;
-            }
+            socketResult.price = productData.priceNow;
 
             await this._productRepository.update(product.id, productData, queryRunner);
 
             return id;
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         }, async () => {}, async () => {
-            if (product.bidPrice && data.price >= product.bidPrice) {
-                const queue = this._queueService.getQueue(QueueJobName.PRODUCT_STATUS);
-                const key = param.productId;
-                const jobs = await queue.getJobs(['delayed']);
-                const job = jobs.find(item => item.name === key);
-                if (job)
-                    await job.remove();
-
-                const winner = await this._clientRepository.getById(bidderId);
-                const seller = await this._clientRepository.getById(product.sellerId);
-                if (winner && seller) {
-                    this._mailService.sendCongratulationsWin(`${winner.firstName} ${winner.lastName ?? ''}`.trim(), winner.email, product);
-                    this._mailService.sendCongratulationsWinForSeller(`${seller.firstName} ${seller.lastName ?? ''}`.trim(), seller.email, product);
-                }
-
-                this._searchService.delete([key]);
-            }
-
             if (param.userAuthId !== bidderId) {
                 this._dbContext.getConnection().runTransaction(async queryRunner => {
                     const bidder = await this._clientRepository.getById(param.userAuthId);
@@ -178,15 +168,21 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                     }
                 });
             }
-        }, transactionLevel);
+
+            const bidder = await this._clientRepository.getById(bidderId);
+            if (bidder)
+                socketResult.setBidder(bidder);
+
+            this._sockerEmmiterService.sendAll(BidNS.NAME, BidNS.EVENTS.BID_END, socketResult);
+        });
 
         const paramStatistic = new CreateProductStatisticCommandInput();
         paramStatistic.productId = product.id;
         paramStatistic.isAuction = true;
         this._createProductStatisticCommandHandler.handle(paramStatistic);
 
-        const result = new CreateClientCommandOutput();
-        result.setData(id);
+        const result = new CreateBidderProductCommandOutput();
+        result.setData(true);
         return result;
     }
 }

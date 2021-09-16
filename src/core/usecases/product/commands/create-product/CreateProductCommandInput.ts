@@ -18,5 +18,9 @@ export class CreateProductCommandInput {
     @IsNumber()
     stepPrice: number;
 
+    @IsNumber()
+    @IsOptional()
+    startPrice: number | null;
+
     file: Express.Multer.File;
 }

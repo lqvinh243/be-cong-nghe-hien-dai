@@ -7,17 +7,20 @@ import { IClientRepository } from '@gateways/repositories/user/IClientRepository
 import { IMailService } from '@gateways/services/IMailService';
 import { IQueueJobService } from '@gateways/services/IQueueJobService';
 import { ISearchService } from '@gateways/services/ISearchService';
+import { ISocketEmitterService } from '@gateways/services/ISocketEmitterService';
 import { IDbContext } from '@shared/database/interfaces/IDbContext';
 import { TransactionIsolationLevel } from '@shared/database/TransactionIsolationLevel';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { QueueJobName } from '@shared/queue/QueueJobName';
+import { BidNS } from '@shared/socket/namespaces/BidNS';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
 import { CreateProductStatisticCommandHandler } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandHandler';
 import { CreateProductStatisticCommandInput } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandInput';
 import { Inject, Service } from 'typedi';
 import { BuyNowProductCommandInput } from './BuyNowProductCommandInput';
 import { BuyNowProductCommandOutput } from './BuyNowProductCommandOutput';
+import { BidEndSocketOutput } from '../schedule-status-product-to-end/BidEndSocketOutput';
 
 @Service()
 export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProductCommandInput, BuyNowProductCommandOutput> {
@@ -47,6 +50,9 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
 
     @Inject('client.repository')
     private readonly _clientRepository: IClientRepository;
+
+    @Inject('socket_emitter.service')
+    private readonly _sockerEmmiterService: ISocketEmitterService;
 
     async handle(param: BuyNowProductCommandInput): Promise<BuyNowProductCommandOutput> {
         let idDelete = '';
@@ -79,6 +85,10 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
                 emails.push(client.email);
         }
 
+        const socketResult = new BidEndSocketOutput();
+        socketResult.status = ProductStatus.END;
+        socketResult.id = product.id;
+
         await this._dbContext.getConnection().runTransaction(async queryRunner => {
             idDelete = product.id;
             if (!product.bidPrice)
@@ -88,6 +98,7 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
             const productData = new Product();
             productData.status = ProductStatus.END;
             productData.priceNow = product.bidPrice;
+            socketResult.price = productData.priceNow;
             if (bidderAuto && bidderAuto.maxPrice >= product.bidPrice) {
                 emails.push(buyer.email);
                 winnerId = bidderAuto.bidderId;
@@ -114,12 +125,15 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
             if (winner && seller) {
                 this._mailService.sendCongratulationsWin(`${winner.firstName} ${winner.lastName ?? ''}`.trim(), winner.email, product);
                 this._mailService.sendCongratulationsWinForSeller(`${seller.firstName} ${seller.lastName ?? ''}`.trim(), seller.email, product);
+                socketResult.setWinner(winner);
             }
 
             this._mailService.sendFailBid('Người đặt giá', emails, product);
 
             this._searchService.delete([idDelete]);
         }, TransactionIsolationLevel.REPEATABLE_READ);
+
+        this._sockerEmmiterService.sendAll(BidNS.NAME, BidNS.EVENTS.BID_END, socketResult);
 
         const result = new BuyNowProductCommandOutput();
         result.setData(true);

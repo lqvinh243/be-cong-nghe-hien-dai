@@ -168,6 +168,7 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
     async getDetailById(id: string): Promise<Product | null> {
         let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.WINNER}`, `${CLIENT_SCHEMA.TABLE_NAME}2`)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.PRODUCT_STATISTIC}`, PRODUCT_STATISTIC_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.SELLER}`, CLIENT_SCHEMA.TABLE_NAME)
             .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_DESCRIPTION}`, PRODUCT_DESCRIPTION_SCHEMA.TABLE_NAME)
