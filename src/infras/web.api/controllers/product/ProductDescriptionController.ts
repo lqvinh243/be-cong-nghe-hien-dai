@@ -1,5 +1,8 @@
 import { RoleId } from '@domain/enums/user/RoleId';
 import { UserAuthenticated } from '@shared/UserAuthenticated';
+import { CreateMultipleProductDescriptionCommandHandler } from '@usecases/product/commands/create-multiple-product-description/CreateMultipleProductDescriptionCommandHandler';
+import { CreateMultipleProductDescriptionCommandInput } from '@usecases/product/commands/create-multiple-product-description/CreateMultipleProductDescriptionCommandInput';
+import { CreateMultipleProductDescriptionCommandOutput } from '@usecases/product/commands/create-multiple-product-description/CreateMultipleProductDescriptionCommandOutput';
 import { CreateProductDescriptionCommandHandler } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandHandler';
 import { CreateProductDescriptionCommandInput } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandInput';
 import { CreateProductDescriptionCommandOutput } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandOutput';
@@ -24,6 +27,7 @@ export class ProductDescriptionController {
         private readonly _findProductDescriptionQueryHandler: FindProductDescriptionQueryHandler,
         private readonly _getProductDescriptionByIdQueryHandler: GetProductDescriptionByIdQueryHandler,
         private readonly _createProductDescriptionCommandHandler: CreateProductDescriptionCommandHandler,
+        private readonly _createMultipleProductDescriptionCommandHandler: CreateMultipleProductDescriptionCommandHandler,
         private readonly _updateProductDescriptionCommandHandler: UpdateProductDescriptionCommandHandler,
         private readonly _deleteProductDescriptionCommandHandler: DeleteProductDescriptionCommandHandler
     ) {}
@@ -49,6 +53,15 @@ export class ProductDescriptionController {
     async create(@Body() param: CreateProductDescriptionCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateProductDescriptionCommandOutput> {
         param.userAuthId = userAuth.userId;
         return await this._createProductDescriptionCommandHandler.handle(param);
+    }
+
+    @Post('/multiple')
+    @OpenAPI({ summary: 'Create productDescription' })
+    @ResponseSchema(CreateProductDescriptionCommandOutput)
+    @Authorized([RoleId.SELLER])
+    async createMultiple(@Body() param: CreateMultipleProductDescriptionCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateMultipleProductDescriptionCommandOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._createMultipleProductDescriptionCommandHandler.handle(param);
     }
 
     @Put('/:id([0-9a-f-]{36})')
