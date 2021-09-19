@@ -19,6 +19,7 @@ import { BuyNowProductCommandHandler } from '@usecases/product/commands/buy-now-
 import { BuyNowProductCommandInput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandInput';
 import { CreateProductStatisticCommandHandler } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandHandler';
 import { CreateProductStatisticCommandInput } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandInput';
+import { addMinutes } from '@utils/datetime';
 import { Inject, Service } from 'typedi';
 import { BidPriceChangeSocketOuput } from './BidPriceChangeSocketOuput';
 import { CreateBidderProductCommandInput } from './CreateBidderProductCommandInput';
@@ -132,6 +133,12 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
             const productData = new Product();
             productData.priceNow = data.price;
             socketResult.price = productData.priceNow;
+
+            if (product.isExtendedExpired) {
+                const time = new Date().getTime() - new Date(product.expiredAt).getTime();
+                if ((time / 1000) <= 300)
+                    productData.expiredAt = addMinutes(productData.expiredAt, 10);
+            }
 
             await this._productRepository.update(product.id, productData, queryRunner);
 

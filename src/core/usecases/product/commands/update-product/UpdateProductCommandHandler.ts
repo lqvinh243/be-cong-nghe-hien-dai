@@ -19,12 +19,16 @@ export class UpdateProductCommandHandler implements CommandHandler<UpdateProduct
             data.name = param.name;
         if (param.categoryId)
             data.categoryId = param.categoryId;
-        if (param.bidPrice)
+        if (param.startPrice)
+            data.startPrice = param.startPrice;
+        if (param.bidPrice || param.bidPrice === null)
             data.bidPrice = param.bidPrice;
         if (param.stepPrice)
             data.stepPrice = param.stepPrice;
         if (param.expiredAt)
             data.expiredAt = new Date(param.expiredAt);
+        if (param.isExtendedExpired !== null)
+            data.isExtendedExpired = param.isExtendedExpired;
 
         const product = await this._productRepository.getById(id);
         if (!product || product.status !== ProductStatus.DRAFT)

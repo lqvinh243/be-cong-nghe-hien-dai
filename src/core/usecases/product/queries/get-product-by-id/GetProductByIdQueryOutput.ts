@@ -11,6 +11,9 @@ import { DataResponse } from '@shared/usecase/DataResponse';
 import { IsBoolean, IsDate, IsDateString, IsEnum, IsNumber, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class ProductImageData {
+    @IsUUID()
+    id: string;
+
     @IsString()
     url: string;
 
@@ -18,12 +21,16 @@ export class ProductImageData {
     isPrimary: boolean;
 
     constructor(data: ProductImage) {
+        this.id = data.id;
         this.url = data.url;
         this.isPrimary = data.isPrimary;
     }
 }
 
 export class ProductDescriptionData {
+    @IsUUID()
+    id: string;
+
     @IsDateString()
     createdAt: Date;
 
@@ -31,6 +38,7 @@ export class ProductDescriptionData {
     content: string;
 
     constructor(data: ProductDescription) {
+        this.id = data.id;
         this.createdAt = data.createdAt;
         this.content = data.content;
     }
@@ -144,6 +152,9 @@ export class GetProductByIdQueryData {
     @IsUUID()
     winnerId: string | null;
 
+    @IsBoolean()
+    isExtendedExpired: boolean;
+
     seller: ClientData | null;
     bidder: BidderData | null;
     winner: ClientData | null;
@@ -164,6 +175,7 @@ export class GetProductByIdQueryData {
         this.isFavourite = !!(data.productFavourites && data.productFavourites.length);
         this.winnerId = data.winnerId;
         this.rateSeller = null;
+        this.isExtendedExpired = data.isExtendedExpired;
 
         this.seller = data.seller && new ClientData(data.seller);
         this.bidder = null;

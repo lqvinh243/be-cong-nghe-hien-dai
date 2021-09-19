@@ -15,7 +15,8 @@ export const PRODUCT_SCHEMA = {
         BID_PRICE: 'bid_price',
         STEP_PRICE: 'step_price',
         EXPIRED_AT: 'expired_at',
-        IS_STRICTEN: 'is_stricten'
+        IS_STRICTEN: 'is_stricten',
+        IS_EXTENDED_EXPIRED: 'is_extended_expired'
     },
     RELATED_ONE: {
         // The field name that we're defined into entity.

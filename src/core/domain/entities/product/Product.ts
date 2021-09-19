@@ -167,6 +167,19 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
         this.data.isStricten = val;
     }
 
+    get isExtendedExpired(): boolean {
+        return this.data.isExtendedExpired;
+    }
+
+    set isExtendedExpired(val: boolean) {
+        if (validator.isEmpty(val))
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'isExtendedExpired');
+        if (!validator.isBoolean(val))
+            throw new SystemError(MessageError.PARAM_INVALID, 'isExtendedExpired');
+
+        this.data.isExtendedExpired = val;
+    }
+
     /* Relationship */
 
     get seller(): Client | null {

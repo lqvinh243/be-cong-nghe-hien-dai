@@ -20,6 +20,7 @@ export interface IProduct extends IEntity<string> {
     stepPrice: number;
     expiredAt: Date;
     isStricten: boolean;
+    isExtendedExpired: boolean;
 
     /* Relationship */
     seller: IClient | null;

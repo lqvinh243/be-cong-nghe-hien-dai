@@ -54,7 +54,9 @@ export class ProductDescriptionController {
     @Put('/:id([0-9a-f-]{36})')
     @OpenAPI({ summary: 'Update productDescription' })
     @ResponseSchema(UpdateProductDescriptionCommandOutput)
-    async update(@Param('id') id: string, @Body() param: UpdateProductDescriptionCommandInput): Promise<UpdateProductDescriptionCommandOutput> {
+    @Authorized([RoleId.SELLER])
+    async update(@Param('id') id: string, @Body() param: UpdateProductDescriptionCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<UpdateProductDescriptionCommandOutput> {
+        param.userAuthId = userAuth.userId;
         return await this._updateProductDescriptionCommandHandler.handle(id, param);
     }
 

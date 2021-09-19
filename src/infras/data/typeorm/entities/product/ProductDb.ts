@@ -56,6 +56,9 @@ export class ProductDb extends BaseDbEntity<string, Product> implements IProduct
     @Column('bool', { name: PRODUCT_SCHEMA.COLUMNS.IS_STRICTEN, default: false })
     isStricten: boolean;
 
+    @Column('bool', { name: PRODUCT_SCHEMA.COLUMNS.IS_EXTENDED_EXPIRED, default: false })
+    isExtendedExpired: boolean;
+
     /* Relationship */
 
     @ManyToOne(() => ClientDb)
