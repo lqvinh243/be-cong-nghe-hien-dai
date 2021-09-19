@@ -110,7 +110,7 @@ export class CreateBidderProductAutoCommandHandler implements CommandHandler<Cre
                     }
                 }
                 else {
-                    if (data.maxPrice <= product.bidPrice) {
+                    if (data.maxPrice <= product.bidPrice && bidderAuto.maxPrice + product.stepPrice > product.bidPrice) {
                         paramBid.price = data.maxPrice;
                         paramBid.userAuthId = data.bidderId;
                     }
@@ -125,6 +125,7 @@ export class CreateBidderProductAutoCommandHandler implements CommandHandler<Cre
                 }
             }
         }
+        let isSuccessAuto = true;
         if (isBid) {
             paramBid.price = product.bidPrice && paramBid.price > product.bidPrice ? product.bidPrice : paramBid.price;
             await this._createBidderProductCommandHandler.handle(paramBid);
@@ -156,10 +157,15 @@ export class CreateBidderProductAutoCommandHandler implements CommandHandler<Cre
                     if (bidder)
                         this._mailService.sendFailBid('Người đặt giá', [bidder.email], product);
                 });
+                isSuccessAuto = false;
             }
         }
+        let id = bidderAuto?.id;
+        if (isSuccessAuto)
+            id = await this._bidderProductAutoRepository.create(data);
+        if (!id)
+            throw new SystemError(MessageError.DATA_CANNOT_SAVE);
 
-        const id = await this._bidderProductAutoRepository.create(data);
         const result = new CreateClientCommandOutput();
         result.setData(id);
         return result;

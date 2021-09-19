@@ -173,7 +173,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
             if (bidder)
                 socketResult.setBidder(bidder);
 
-            this._sockerEmmiterService.sendAll(BidNS.NAME, BidNS.EVENTS.BID_END, socketResult);
+            this._sockerEmmiterService.sendAll(BidNS.NAME, BidNS.EVENTS.BID_PRICE_CHANGE, socketResult);
         });
 
         const paramStatistic = new CreateProductStatisticCommandInput();
