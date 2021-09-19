@@ -110,7 +110,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
         const socketResult = new BidPriceChangeSocketOuput();
         socketResult.id = product.id;
 
-        const bidderProduct = await this._bidderProductRepository.checkDataExistAndGet(data.bidderId, data.productId);
+        const bidderProduct = await this._bidderProductRepository.checkDataExistAndGet(bidderId, data.productId);
         await this._dbContext.getConnection().runTransaction(async (queryRunner) => {
             let id: string | null = null;
             data.bidderId = bidderId;

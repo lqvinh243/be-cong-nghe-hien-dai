@@ -24,10 +24,14 @@ export class ProductImageData {
 }
 
 export class ProductDescriptionData {
+    @IsDateString()
+    createdAt: Date;
+
     @IsString()
     content: string;
 
     constructor(data: ProductDescription) {
+        this.createdAt = data.createdAt;
         this.content = data.content;
     }
 }
@@ -145,7 +149,7 @@ export class GetProductByIdQueryData {
     winner: ClientData | null;
     category: CategoryData | null;
     productImages: ProductImageData[] | null;
-    productDescription: ProductDescription[] | null;
+    productDescription: ProductDescriptionData[] | null;
     statistic: ProductStatictisData | null;
 
     constructor(data: Product) {
@@ -167,7 +171,7 @@ export class GetProductByIdQueryData {
         this.category = data.category && new CategoryData(data.category);
         this.productImages = data.productImages && data.productImages.map(item => new ProductImageData(item));
         this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
-        this.productDescription = data.productDescriptions && data.productDescriptions.map(item => new ProductDescription(item));
+        this.productDescription = data.productDescriptions && data.productDescriptions.map(item => new ProductDescriptionData(item));
     }
 
     setBidder(data: BidderProduct): void {

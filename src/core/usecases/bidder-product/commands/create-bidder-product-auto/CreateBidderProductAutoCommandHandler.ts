@@ -99,13 +99,29 @@ export class CreateBidderProductAutoCommandHandler implements CommandHandler<Cre
                 paramBid.userAuthId = bidderAuto.bidderId;
             }
             else {
-                if (data.maxPrice - product.stepPrice < bidderAuto.maxPrice) {
-                    paramBid.price = bidderAuto.maxPrice;
-                    paramBid.userAuthId = bidderAuto.bidderId;
+                if (!product.bidPrice) {
+                    if (data.maxPrice - product.stepPrice < bidderAuto.maxPrice) {
+                        paramBid.price = bidderAuto.maxPrice;
+                        paramBid.userAuthId = bidderAuto.bidderId;
+                    }
+                    else {
+                        paramBid.price = bidderAuto.maxPrice + product.stepPrice;
+                        paramBid.userAuthId = data.bidderId;
+                    }
                 }
                 else {
-                    paramBid.price = bidderAuto.maxPrice + product.stepPrice;
-                    paramBid.userAuthId = data.bidderId;
+                    if (data.maxPrice <= product.bidPrice) {
+                        paramBid.price = data.maxPrice;
+                        paramBid.userAuthId = data.bidderId;
+                    }
+                    else if (data.maxPrice - product.stepPrice < bidderAuto.maxPrice) {
+                        paramBid.price = bidderAuto.maxPrice;
+                        paramBid.userAuthId = bidderAuto.bidderId;
+                    }
+                    else {
+                        paramBid.price = bidderAuto.maxPrice + product.stepPrice;
+                        paramBid.userAuthId = data.bidderId;
+                    }
                 }
             }
         }
