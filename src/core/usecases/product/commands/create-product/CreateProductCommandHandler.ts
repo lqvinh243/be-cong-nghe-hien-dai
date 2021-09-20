@@ -52,6 +52,7 @@ export class CreateProductCommandHandler implements CommandHandler<CreateProduct
         data.bidPrice = param.bidPrice;
         data.stepPrice = param.stepPrice;
         data.expiredAt = param.expiredAt;
+        data.isStricten = param.isStricten;
         data.status = ProductStatus.DRAFT;
 
         const id = await this._dbContext.getConnection().runTransaction(async queryRunner => {

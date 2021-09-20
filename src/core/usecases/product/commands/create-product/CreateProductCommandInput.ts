@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateProductCommandInput {
     userAuthId: string;
@@ -21,6 +21,9 @@ export class CreateProductCommandInput {
     @IsNumber()
     @IsOptional()
     startPrice: number | null;
+
+    @IsBoolean()
+    isStricten: boolean;
 
     file: Express.Multer.File;
 }
