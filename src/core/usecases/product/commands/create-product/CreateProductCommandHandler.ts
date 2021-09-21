@@ -54,6 +54,7 @@ export class CreateProductCommandHandler implements CommandHandler<CreateProduct
         data.expiredAt = param.expiredAt;
         data.isStricten = param.isStricten;
         data.status = ProductStatus.DRAFT;
+        data.isExtendedExpired = param.isExtendedExpired ?? false;
 
         const id = await this._dbContext.getConnection().runTransaction(async queryRunner => {
             const id = await this._productRepository.create(data, queryRunner);

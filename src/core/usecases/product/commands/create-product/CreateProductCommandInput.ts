@@ -25,5 +25,8 @@ export class CreateProductCommandInput {
     @IsBoolean()
     isStricten: boolean;
 
+    @IsOptional()
+    isExtendedExpired: boolean | null;
+
     file: Express.Multer.File;
 }

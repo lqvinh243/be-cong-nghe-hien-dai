@@ -10,7 +10,6 @@ export class UpdateProductCommandInput {
     @IsOptional()
     expiredAt: Date | null;
 
-    @IsDateString()
     @IsOptional()
     isExtendedExpired: boolean | null;
 

@@ -82,6 +82,7 @@ export class FindProductQueryData {
     statistic: ProductStatictisData | null;
     category: CategoryData | null;
     winner: ClientData | null;
+    seller: ClientData | null;
 
     constructor(data: Product) {
         this.id = data.id;
@@ -97,6 +98,7 @@ export class FindProductQueryData {
         this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
         this.category = data.category && new CategoryData(data.category);
         this.winner = data.winner ? new ClientData(data.winner) : null;
+        this.seller = data.seller ? new ClientData(data.seller) : null;
     }
 }
 
