@@ -97,7 +97,7 @@ export class FindProductQueryData {
         this.stepPrice = data.stepPrice;
         this.expiredAt = data.expiredAt;
         this.url = data.productImages && data.productImages.length ? data.productImages[0].url : null;
-        this.isFavourite = !!(data.productFavourites && data.productFavourites.length);
+        this.isFavourite = true;
         this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
         this.category = data.category && new CategoryData(data.category);
         this.bidder = null;
