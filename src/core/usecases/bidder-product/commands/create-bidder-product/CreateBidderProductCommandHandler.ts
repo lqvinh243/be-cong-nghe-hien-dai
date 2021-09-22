@@ -61,6 +61,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
     private readonly _sockerEmmiterService: ISocketEmitterService;
 
     async handle(param: CreateBidderProductCommandInput): Promise<CreateBidderProductCommandOutput> {
+        const emails: string[] = [];
         let bidderId = param.userAuthId;
 
         const data = new BidderProduct();
@@ -92,8 +93,12 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
         }
         if (!product.bidPrice || (product.bidPrice && data.price < product.bidPrice)) {
             const bidderProduct = await this._bidderProductRepository.getBiggestByProduct(data.productId);
-            if (data.price - product.stepPrice < product.priceNow && bidderProduct)
+            if (data.price - product.stepPrice < product.priceNow && bidderProduct) {
+                const bidder = await this._clientRepository.getById(bidderProduct.bidderId);
+                if (bidder)
+                    emails.push(bidder.email);
                 throw new SystemError(MessageError.OTHER, 'Price must be bigger old price and step price!');
+            }
             else if (!bidderProduct && data.price < product.priceNow)
                 throw new SystemError(MessageError.PARAM_INVALID, 'price');
         }
@@ -149,6 +154,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                 this._dbContext.getConnection().runTransaction(async queryRunner => {
                     const bidder = await this._clientRepository.getById(param.userAuthId);
                     if (bidder) {
+                        emails.push(bidder.email);
                         const dataBid = new BidderProduct();
                         dataBid.productId = data.productId;
                         dataBid.bidderId = param.userAuthId;
@@ -170,18 +176,20 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                         paramStatistic.productId = product.id;
                         paramStatistic.isAuction = true;
                         this._createProductStatisticCommandHandler.handle(paramStatistic);
-
-                        this._mailService.sendFailBid('Người đặt giá', [bidder.email], product);
                     }
                 });
             }
 
             const bidder = await this._clientRepository.getById(bidderId);
-            if (bidder)
+            if (bidder) {
+                this._mailService.sendSuccessBid(`${bidder.firstName} ${bidder.lastName ?? ''}`.trim(), bidder.email, product);
                 socketResult.setBidder(bidder);
+            }
 
             this._sockerEmmiterService.sendAll(BidNS.NAME, BidNS.EVENTS.BID_PRICE_CHANGE, socketResult);
         });
+
+        this._mailService.sendFailBid('Người đặt giá', emails, product);
 
         const paramStatistic = new CreateProductStatisticCommandInput();
         paramStatistic.productId = product.id;

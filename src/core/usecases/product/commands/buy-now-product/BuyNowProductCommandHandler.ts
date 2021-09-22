@@ -93,7 +93,6 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
             idDelete = product.id;
             if (!product.bidPrice)
                 throw new SystemError(MessageError.DATA_INVALID);
-
             const bidderAuto = await this._bidderProductAutoRepository.getBiggestByProduct(product.id);
             const productData = new Product();
             productData.status = ProductStatus.END;
@@ -123,6 +122,7 @@ export class BuyNowProductCommandHandler implements CommandHandler<BuyNowProduct
             const winner = await this._clientRepository.getById(winnerId);
             const seller = await this._clientRepository.getById(product.sellerId);
             if (winner && seller) {
+                product.priceNow = product.bidPrice ?? product.priceNow;
                 this._mailService.sendCongratulationsWin(`${winner.firstName} ${winner.lastName ?? ''}`.trim(), winner.email, product);
                 this._mailService.sendCongratulationsWinForSeller(`${seller.firstName} ${seller.lastName ?? ''}`.trim(), seller.email, product);
                 socketResult.setWinner(winner);
