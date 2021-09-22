@@ -11,7 +11,6 @@ import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
 import { addSeconds } from '@utils/datetime';
-import { validateDataInput } from '@utils/validator';
 import { Inject, Service } from 'typedi';
 import { ForgotPasswordByEmailCommandInput } from './ForgotPasswordByEmailCommandInput';
 import { ForgotPasswordByEmailCommandOutput } from './ForgotPasswordByEmailCommandOutput';
@@ -31,13 +30,11 @@ export class ForgotPasswordByEmailCommandHandler extends CommandHandler<ForgotPa
     private readonly _mailService: IMailService;
 
     async handle(param: ForgotPasswordByEmailCommandInput): Promise<ForgotPasswordByEmailCommandOutput> {
-        await validateDataInput(param);
-
         const auth = await this._authRepository.getByUsername(param.email);
         if (!auth || !auth.user)
             throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'account authorization');
 
-        if (auth.user.roleId === RoleId.BIDDER) {
+        if ([RoleId.BIDDER, RoleId.SELLER].includes(auth.user.roleId as RoleId)) {
             const client = await this._clientRepository.getById(auth.userId);
             if (!client)
                 throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'account');

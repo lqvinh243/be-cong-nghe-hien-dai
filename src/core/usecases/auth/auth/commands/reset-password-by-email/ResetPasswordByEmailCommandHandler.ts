@@ -8,7 +8,6 @@ import { IManagerRepository } from '@gateways/repositories/user/IManagerReposito
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
-import { validateDataInput } from '@utils/validator';
 import { Inject, Service } from 'typedi';
 import { ResetPasswordByEmailCommandInput } from './ResetPasswordByEmailCommandInput';
 import { ResetPasswordByEmailCommandOutput } from './ResetPasswordByEmailCommandOutput';
@@ -25,8 +24,6 @@ export class ResetPasswordByEmailCommandHandler extends CommandHandler<ResetPass
     private readonly _managerRepository: IManagerRepository;
 
     async handle(param: ResetPasswordByEmailCommandInput): Promise<ResetPasswordByEmailCommandOutput> {
-        await validateDataInput(param);
-
         const auth = await this._authRepository.getByUsername(param.email);
         if (!auth || !auth.user)
             throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'account authorization');
