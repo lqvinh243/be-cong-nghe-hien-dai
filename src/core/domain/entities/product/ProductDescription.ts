@@ -12,9 +12,9 @@ export class ProductDescription extends BaseEntity<string, IProductDescription> 
 
     set productId(val: string) {
         if (!val)
-            throw new SystemError(MessageError.PARAM_REQUIRED, 'seller');
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'productId');
         if (!validator.isUUID(val))
-            throw new SystemError(MessageError.PARAM_INVALID, 'seller');
+            throw new SystemError(MessageError.PARAM_INVALID, 'productId');
 
         this.data.productId = val;
     }

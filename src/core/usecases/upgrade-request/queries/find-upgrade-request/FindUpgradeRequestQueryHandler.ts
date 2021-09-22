@@ -17,7 +17,7 @@ export class FindUpgradeRequestQueryHandler implements QueryHandler<FindUpgradeR
         const filter = new FindUpgradeRequestFilter();
         filter.setPagination(param.skip, param.limit);
         filter.keyword = param.keyword;
-        filter.statuses = param.statuses ? param.statuses.split(',') as UpgradeRequestStatus[] : [];
+        filter.statuses = param.statuses ? param.statuses.split(',') as UpgradeRequestStatus[] : [UpgradeRequestStatus.PENDING];
         if (filter.statuses.find(item => !validator.isEnum(item, UpgradeRequestStatus)))
             throw new SystemError(MessageError.PARAM_INVALID, 'statuses');
 

@@ -126,3 +126,16 @@ export const APN_KEY: string = process.env.APN_KEY ?? '';
 
 // CAPCHA SERVICE
 export const CAPCHA_SECRET_KEY: string = process.env.CAPCHA_SECRET_KEY ?? '';
+
+// SEARCH SERVICE
+export const SEARCH_PROVIDER: number = process.env.SEARCH_PROVIDER ? Number(process.env.SEARCH_PROVIDER) : 1;
+export const SEARCH_PRODUCT_INDEX: string = process.env.SEARCH_PRODUCT_INDEX ?? '';
+// ELASTIC
+export const ELASTIC_SEARCH_PROTOTYPE: string = process.env.ELASTIC_SEARCH_PROTOTYPE ?? 'http';
+export const ELASTIC_SEARCH_HOST: string = process.env.ELASTIC_SEARCH_HOST ?? 'localhost';
+export const ELASTIC_SEARCH_PORT: number = process.env.ELASTIC_SEARCH_PORT ? Number(process.env.ELASTIC_SEARCH_PORT) : 9200;
+export const ELASTIC_SEARCH_USERNAME: string = process.env.ELASTIC_SEARCH_USERNAME ?? '';
+export const ELASTIC_SEARCH_PASSWORD: string = process.env.ELASTIC_SEARCH_PASSWORD ?? '';
+// AGOLIA
+export const AGOLIA_SEARCH_APP: string = process.env.AGOLIA_SEARCH_APP ?? '';
+export const AGOLIA_ADMIN_API_KEY: string = process.env.AGOLIA_ADMIN_API_KEY ?? '';

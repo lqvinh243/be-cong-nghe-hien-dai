@@ -9,3 +9,4 @@ import './socket-emitter/SocketEmitterService';
 import './storage/StorageService';
 import './queue/QueueJobService';
 import './capcha/CapchaService';
+import './search/SearchService';

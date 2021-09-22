@@ -10,11 +10,13 @@ export const PRODUCT_SCHEMA = {
         WINNER_ID: 'winner_id',
         CATEGORY_ID: 'category_id',
         STATUS: 'status',
+        START_PRICE: 'start_price',
         PRICE_NOW: 'price_now',
         BID_PRICE: 'bid_price',
         STEP_PRICE: 'step_price',
         EXPIRED_AT: 'expired_at',
-        IS_STRICTEN: 'is_stricten'
+        IS_STRICTEN: 'is_stricten',
+        IS_EXTENDED_EXPIRED: 'is_extended_expired'
     },
     RELATED_ONE: {
         // The field name that we're defined into entity.
@@ -26,6 +28,8 @@ export const PRODUCT_SCHEMA = {
     RELATED_MANY: {
         // The field name that we're defined into entity.
         PRODUCT_IMAGE: 'productImages',
-        PRODUCT_DESCRIPTION: 'productDescriptions'
+        PRODUCT_DESCRIPTION: 'productDescriptions',
+        PRODUCT_FAVOURITE: 'productFavourites',
+        BIDDER_PRODUCT: 'bidderProducts'
     }
 };

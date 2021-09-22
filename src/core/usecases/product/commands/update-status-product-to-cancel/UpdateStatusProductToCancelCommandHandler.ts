@@ -35,7 +35,7 @@ export class UpdateStatusProductToCancelCommandHandler implements CommandHandler
         const data = new Product();
         data.status = ProductStatus.CANCEL;
 
-        const productFeedback = await this._productFeedbackRepository.checkDataExistAndGet(product.sellerId, product.winnerId, product.id);
+        const productFeedback = await this._productFeedbackRepository.checkDataExistAndGet(product.sellerId, product.id);
         const productFeedbackData = new ProductFeedback();
         productFeedbackData.type = ProductFeedbackType.DOWM;
         productFeedbackData.content = 'Người thắng không thanh toán';

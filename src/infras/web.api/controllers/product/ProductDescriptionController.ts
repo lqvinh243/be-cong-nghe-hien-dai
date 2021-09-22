@@ -1,3 +1,8 @@
+import { RoleId } from '@domain/enums/user/RoleId';
+import { UserAuthenticated } from '@shared/UserAuthenticated';
+import { CreateMultipleProductDescriptionCommandHandler } from '@usecases/product/commands/create-multiple-product-description/CreateMultipleProductDescriptionCommandHandler';
+import { CreateMultipleProductDescriptionCommandInput } from '@usecases/product/commands/create-multiple-product-description/CreateMultipleProductDescriptionCommandInput';
+import { CreateMultipleProductDescriptionCommandOutput } from '@usecases/product/commands/create-multiple-product-description/CreateMultipleProductDescriptionCommandOutput';
 import { CreateProductDescriptionCommandHandler } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandHandler';
 import { CreateProductDescriptionCommandInput } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandInput';
 import { CreateProductDescriptionCommandOutput } from '@usecases/product/commands/create-product-description/CreateProductDescriptionCommandOutput';
@@ -11,7 +16,7 @@ import { FindProductDescriptionQueryInput } from '@usecases/product/queries/find
 import { FindProductDescriptionQueryOutput } from '@usecases/product/queries/find-product-description/FindProductDescriptionQueryOutput';
 import { GetProductDescriptionByIdQueryHandler } from '@usecases/product/queries/get-product-description-by-id/GetProductDescriptionByIdQueryHandler';
 import { GetProductDescriptionByIdQueryOutput } from '@usecases/product/queries/get-product-description-by-id/GetProductDescriptionByIdQueryOutput';
-import { Body, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
+import { Authorized, Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Service } from 'typedi';
 
@@ -22,6 +27,7 @@ export class ProductDescriptionController {
         private readonly _findProductDescriptionQueryHandler: FindProductDescriptionQueryHandler,
         private readonly _getProductDescriptionByIdQueryHandler: GetProductDescriptionByIdQueryHandler,
         private readonly _createProductDescriptionCommandHandler: CreateProductDescriptionCommandHandler,
+        private readonly _createMultipleProductDescriptionCommandHandler: CreateMultipleProductDescriptionCommandHandler,
         private readonly _updateProductDescriptionCommandHandler: UpdateProductDescriptionCommandHandler,
         private readonly _deleteProductDescriptionCommandHandler: DeleteProductDescriptionCommandHandler
     ) {}
@@ -43,14 +49,27 @@ export class ProductDescriptionController {
     @Post('/')
     @OpenAPI({ summary: 'Create productDescription' })
     @ResponseSchema(CreateProductDescriptionCommandOutput)
-    async create(@Body() param: CreateProductDescriptionCommandInput): Promise<CreateProductDescriptionCommandOutput> {
+    @Authorized([RoleId.SELLER])
+    async create(@Body() param: CreateProductDescriptionCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateProductDescriptionCommandOutput> {
+        param.userAuthId = userAuth.userId;
         return await this._createProductDescriptionCommandHandler.handle(param);
+    }
+
+    @Post('/multiple')
+    @OpenAPI({ summary: 'Create productDescription' })
+    @ResponseSchema(CreateProductDescriptionCommandOutput)
+    @Authorized([RoleId.SELLER])
+    async createMultiple(@Body() param: CreateMultipleProductDescriptionCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateMultipleProductDescriptionCommandOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._createMultipleProductDescriptionCommandHandler.handle(param);
     }
 
     @Put('/:id([0-9a-f-]{36})')
     @OpenAPI({ summary: 'Update productDescription' })
     @ResponseSchema(UpdateProductDescriptionCommandOutput)
-    async update(@Param('id') id: string, @Body() param: UpdateProductDescriptionCommandInput): Promise<UpdateProductDescriptionCommandOutput> {
+    @Authorized([RoleId.SELLER])
+    async update(@Param('id') id: string, @Body() param: UpdateProductDescriptionCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<UpdateProductDescriptionCommandOutput> {
+        param.userAuthId = userAuth.userId;
         return await this._updateProductDescriptionCommandHandler.handle(id, param);
     }
 

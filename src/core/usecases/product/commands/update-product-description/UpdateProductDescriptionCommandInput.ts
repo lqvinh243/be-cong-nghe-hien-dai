@@ -1,6 +1,8 @@
 import { IsString } from 'class-validator';
 
 export class UpdateProductDescriptionCommandInput {
+    userAuthId: string;
+
     @IsString()
-    name: string;
+    content: string;
 }

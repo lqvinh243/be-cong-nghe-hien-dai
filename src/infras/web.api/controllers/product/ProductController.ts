@@ -1,5 +1,14 @@
 import { RoleId } from '@domain/enums/user/RoleId';
 import { UserAuthenticated } from '@shared/UserAuthenticated';
+import { BulkProductToSearchCommandHandler } from '@usecases/product/commands/bulk-product-to-search/BulkProductToSearchCommandHandler';
+import { BulkProductToSearchCommandInput } from '@usecases/product/commands/bulk-product-to-search/BulkProductToSearchCommandInput';
+import { BulkProductToSearchCommandOutput } from '@usecases/product/commands/bulk-product-to-search/BulkProductToSearchCommandOutput';
+import { BuyNowProductCommandHandler } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandHandler';
+import { BuyNowProductCommandInput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandInput';
+import { BuyNowProductCommandOutput } from '@usecases/product/commands/buy-now-product/BuyNowProductCommandOutput';
+import { CreateProductFavouriteCommandHandler } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandHandler';
+import { CreateProductFavouriteCommandInput } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandInput';
+import { CreateProductFavouriteCommandOutput } from '@usecases/product/commands/create-product-favourite/CreateProductFavouriteCommandOutput';
 import { CreateProductCommandHandler } from '@usecases/product/commands/create-product/CreateProductCommandHandler';
 import { CreateProductCommandInput } from '@usecases/product/commands/create-product/CreateProductCommandInput';
 import { CreateProductCommandOutput } from '@usecases/product/commands/create-product/CreateProductCommandOutput';
@@ -16,6 +25,21 @@ import { UpdateStatusProductToProgressCommandInput } from '@usecases/product/com
 import { UpdateStatusProductToProgressCommandOutput } from '@usecases/product/commands/update-status-product-to-progress/UpdateStatusProductToProgressCommandOutput';
 import { UploadMultipleProductImageCommandHandler } from '@usecases/product/commands/upload-multiple-product-image/UploadMultipleProductImageCommandHandler';
 import { UploadMultipleProductImageCommandInput } from '@usecases/product/commands/upload-multiple-product-image/UploadMultipleProductImageCommandInput';
+import { FindProductBySellerQueryHandler } from '@usecases/product/queries/find-product-by-seller/FindProductBySellerQueryHandler';
+import { FindProductBySellerQueryInput } from '@usecases/product/queries/find-product-by-seller/FindProductBySellerQueryInput';
+import { FindProductBySellerQueryOutput } from '@usecases/product/queries/find-product-by-seller/FindProductBySellerQueryOutput';
+import { FindProductByWinnerIdQueryHandler } from '@usecases/product/queries/find-product-by-winner-id/FindProductByWinnerIdQueryHandler';
+import { FindProductByWinnerIdQueryInput } from '@usecases/product/queries/find-product-by-winner-id/FindProductByWinnerIdQueryInput';
+import { FindProductByWinnerIdQueryOutput } from '@usecases/product/queries/find-product-by-winner-id/FindProductByWinnerIdQueryOutput';
+import { FindProductFavouriteByProductIdsQueryHandler } from '@usecases/product/queries/find-product-favourite-by-product-ids/FindProductFavouriteByProductIdsQueryHandler';
+import { FindProductFavouriteByProductIdsQueryInput } from '@usecases/product/queries/find-product-favourite-by-product-ids/FindProductFavouriteByProductIdsQueryInput';
+import { FindProductFavouriteByProductIdsQueryOutput } from '@usecases/product/queries/find-product-favourite-by-product-ids/FindProductFavouriteByProductIdsQueryOutput';
+import { FindProductFavouriteQueryHandler } from '@usecases/product/queries/find-product-favourite/FindProductFavouriteQueryHandler';
+import { FindProductFavouriteQueryInput } from '@usecases/product/queries/find-product-favourite/FindProductFavouriteQueryInput';
+import { FindProductFavouriteQueryOutput } from '@usecases/product/queries/find-product-favourite/FindProductFavouriteQueryOutput';
+import { FindProductHaveBeenBiddingByBidderQueryHandler } from '@usecases/product/queries/find-product-have-been-bidding-by-bidder/FindProductHaveBeenBiddingByBidderQueryHandler';
+import { FindProductHaveBeenBiddingByBidderQueryInput } from '@usecases/product/queries/find-product-have-been-bidding-by-bidder/FindProductHaveBeenBiddingByBidderQueryInput';
+import { FindProductHaveBeenBiddingByBidderQueryOutput } from '@usecases/product/queries/find-product-have-been-bidding-by-bidder/FindProductHaveBeenBiddingByBidderQueryOutput';
 import { FindProductQueryHandler } from '@usecases/product/queries/find-product/FindProductQueryHandler';
 import { FindProductQueryInput } from '@usecases/product/queries/find-product/FindProductQueryInput';
 import { FindProductQueryOutput } from '@usecases/product/queries/find-product/FindProductQueryOutput';
@@ -34,10 +58,18 @@ import { Service } from 'typedi';
 export class ProductController {
     constructor(
         private readonly _findProductQueryHandler: FindProductQueryHandler,
+        private readonly _findProductFavouriteQueryHandler: FindProductFavouriteQueryHandler,
+        private readonly _findProductFavouriteByProductIdsQueryHandler: FindProductFavouriteByProductIdsQueryHandler,
+        private readonly _findProductHaveBeenBiddingByBidderQueryHandler: FindProductHaveBeenBiddingByBidderQueryHandler,
+        private readonly _findProductByWinnerIdQueryHandler: FindProductByWinnerIdQueryHandler,
+        private readonly _findProductBySellerQueryHandler: FindProductBySellerQueryHandler,
         private readonly _getProductByIdQueryHandler: GetProductByIdQueryHandler,
         private readonly _getProductBySellerQueryHandler: GetProductBySellerQueryHandler,
         private readonly _createProductCommandHandler: CreateProductCommandHandler,
+        private readonly _bulkProductToSearchCommandHandler: BulkProductToSearchCommandHandler,
         private readonly _uploadMultipleProductImageCommandHandler: UploadMultipleProductImageCommandHandler,
+        private readonly _createProductFavouriteCommandHandler: CreateProductFavouriteCommandHandler,
+        private readonly _buyNowProductCommandHandler: BuyNowProductCommandHandler,
         private readonly _updateProductCommandHandler: UpdateProductCommandHandler,
         private readonly _updateStatusProductToProgressCommandHandler: UpdateStatusProductToProgressCommandHandler,
         private readonly _updateStatusProductToCancelCommandHandler: UpdateStatusProductToCancelCommandHandler,
@@ -49,6 +81,51 @@ export class ProductController {
     @ResponseSchema(FindProductQueryOutput)
     async find(@QueryParams() param: FindProductQueryInput): Promise<FindProductQueryOutput> {
         return await this._findProductQueryHandler.handle(param);
+    }
+
+    @Get('/favourite')
+    @OpenAPI({ summary: 'Find products favourite' })
+    @ResponseSchema(FindProductQueryOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
+    async findFavourite(@QueryParams() param: FindProductFavouriteQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductFavouriteQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._findProductFavouriteQueryHandler.handle(param);
+    }
+
+    @Post('/favourite/by-ids')
+    @OpenAPI({ summary: 'Find products favourite' })
+    @ResponseSchema(FindProductQueryOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
+    async findFavouriteByProductIds(@Body() param: FindProductFavouriteByProductIdsQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductFavouriteByProductIdsQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._findProductFavouriteByProductIdsQueryHandler.handle(param);
+    }
+
+    @Get('/bidding')
+    @OpenAPI({ summary: 'Find products have been bidding' })
+    @ResponseSchema(FindProductQueryOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
+    async findHaveBeenBidding(@QueryParams() param: FindProductHaveBeenBiddingByBidderQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductHaveBeenBiddingByBidderQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._findProductHaveBeenBiddingByBidderQueryHandler.handle(param);
+    }
+
+    @Get('/win')
+    @OpenAPI({ summary: 'Find products by winner' })
+    @ResponseSchema(FindProductQueryOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
+    async findProductByWinner(@QueryParams() param: FindProductByWinnerIdQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductByWinnerIdQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._findProductByWinnerIdQueryHandler.handle(param);
+    }
+
+    @Get('/by-seller')
+    @OpenAPI({ summary: 'Find products by winner' })
+    @ResponseSchema(FindProductQueryOutput)
+    @Authorized([RoleId.SELLER])
+    async findProductBySeller(@QueryParams() param: FindProductBySellerQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindProductBySellerQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._findProductBySellerQueryHandler.handle(param);
     }
 
     @Get('/:id([0-9a-f-]{36})')
@@ -77,8 +154,17 @@ export class ProductController {
         return await this._createProductCommandHandler.handle(param);
     }
 
+    @Post('/bulk-search')
+    @Authorized([RoleId.SUPER_ADMIN])
+    async bulkSearch(@CurrentUser() userAuth: UserAuthenticated): Promise<BulkProductToSearchCommandOutput> {
+        const param = new BulkProductToSearchCommandInput();
+        param.userAuthId = userAuth.userId;
+        param.roleAuthId = userAuth.roleId;
+        return await this._bulkProductToSearchCommandHandler.handle(param);
+    }
+
     @Post('/:id([0-9a-f-]{36})/multiple-image')
-    @OpenAPI({ summary: 'Update product' })
+    @OpenAPI({ summary: 'Uplaod image product' })
     @ResponseSchema(UpdateProductCommandOutput)
     @Authorized([RoleId.SELLER])
     async uploadMultipleImage(@Param('id') id: string, @UploadedFiles('files', { required: true })files: Express.Multer.File[], @CurrentUser() userAuth: UserAuthenticated): Promise<UpdateProductCommandOutput> {
@@ -86,6 +172,28 @@ export class ProductController {
         param.files = files;
         param.userAuthId = userAuth.userId;
         return await this._uploadMultipleProductImageCommandHandler.handle(id, param);
+    }
+
+    @Post('/:id([0-9a-f-]{36})/favourite')
+    @OpenAPI({ summary: 'Favourite product' })
+    @ResponseSchema(UpdateProductCommandOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
+    async favourite(@Param('id') id: string, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateProductFavouriteCommandOutput> {
+        const param = new CreateProductFavouriteCommandInput();
+        param.productId = id;
+        param.userAuthId = userAuth.userId;
+        return await this._createProductFavouriteCommandHandler.handle(param);
+    }
+
+    @Post('/:id([0-9a-f-]{36})/buy')
+    @OpenAPI({ summary: 'Favourite product' })
+    @ResponseSchema(UpdateProductCommandOutput)
+    @Authorized([RoleId.BIDDER, RoleId.SELLER])
+    async buy(@Param('id') id: string, @CurrentUser() userAuth: UserAuthenticated): Promise<BuyNowProductCommandOutput> {
+        const param = new BuyNowProductCommandInput();
+        param.productId = id;
+        param.userAuthId = userAuth.userId;
+        return await this._buyNowProductCommandHandler.handle(param);
     }
 
     @Put('/:id([0-9a-f-]{36})')

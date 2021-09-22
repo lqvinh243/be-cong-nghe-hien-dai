@@ -28,23 +28,22 @@ export class ProductFeedbackRepository extends BaseRepository<string, ProductFee
         return [list.map(item => item.toEntity()), count];
     }
 
-    async getByReceiverId(receverId: string): Promise<{ up: number, down: number; }> {
+    async getByReceiverId(receiverId: string): Promise<{ up: number|null, down: number|null; }> {
         const query = this.repository.createQueryBuilder(PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME)
             .select(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.TYPE}`, 'type')
             .addSelect('COUNT(*)', 'total')
-            .where(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.RECEIVER_ID} = :receiverId`, { receverId })
+            .where(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.RECEIVER_ID} = :receiverId`, { receiverId })
             .groupBy(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.TYPE}`);
 
         const result = await query.getRawMany<{type: ProductFeedbackType, total: string}>();
         const upItem = result.find(item => item.type === ProductFeedbackType.UP);
         const downItem = result.find(item => item.type === ProductFeedbackType.DOWM);
-        return { up: upItem ? parseFloat(upItem.total) : 0, down: downItem ? parseFloat(downItem.total) : 0 };
+        return { up: upItem ? parseFloat(upItem.total) : null, down: downItem ? parseFloat(downItem.total) : null };
     }
 
-    async checkDataExistAndGet(ownerId: string, receiverId: string, productId: string): Promise<ProductFeedback | null> {
+    async checkDataExistAndGet(ownerId: string, productId: string): Promise<ProductFeedback | null> {
         const query = this.repository.createQueryBuilder(PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME)
             .where(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.OWNER_ID} = :ownerId`, { ownerId })
-            .andWhere(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.RECEIVER_ID} = :receiverId`, { receiverId })
             .andWhere(`${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.PRODUCT_ID} = :productId`, { productId });
 
         const result = await query.getOne();

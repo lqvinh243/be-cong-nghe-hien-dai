@@ -14,9 +14,14 @@ export class BidderProductRepository extends BaseRepository<string, BidderProduc
     }
 
     override async findAndCount(param: FindBidderProductFilter): Promise<[BidderProduct[], number]> {
-        let query = this.repository.createQueryBuilder(BIDDER_PRODUCT_SCHEMA.TABLE_NAME);
+        let query = this.repository.createQueryBuilder(BIDDER_PRODUCT_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.RELATED_ONE.BIDDER}`, CLIENT_SCHEMA.TABLE_NAME)
+            .where(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.COLUMNS.PRODUCT_ID} = :productId`, { productId: param.productId })
+            ;
 
         query = query
+            .orderBy(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.price`, SortType.DESC)
+            .addOrderBy(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.updatedAt`, SortType.ASC)
             .skip(param.skip)
             .take(param.limit);
 
@@ -32,7 +37,7 @@ export class BidderProductRepository extends BaseRepository<string, BidderProduc
             (
                 SELECT 
                     ${BIDDER_PRODUCT_SCHEMA.COLUMNS.ID},
-                    ROW_NUMBER() OVER (PARTITION BY ${BIDDER_PRODUCT_SCHEMA.COLUMNS.PRODUCT_ID} ORDER BY ${BIDDER_PRODUCT_SCHEMA.COLUMNS.PRICE} DESC,${BIDDER_PRODUCT_SCHEMA.COLUMNS.CREATED_AT} ASC) ROW_NUM 
+                    ROW_NUMBER() OVER (PARTITION BY ${BIDDER_PRODUCT_SCHEMA.COLUMNS.PRODUCT_ID} ORDER BY ${BIDDER_PRODUCT_SCHEMA.COLUMNS.PRICE} DESC,${BIDDER_PRODUCT_SCHEMA.COLUMNS.UPDATED_AT} ASC) ROW_NUM 
                 FROM 
                     ${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}
                 WHERE 
@@ -52,6 +57,7 @@ export class BidderProductRepository extends BaseRepository<string, BidderProduc
 
     async getBiggestByProduct(productId: string, isBlock = false): Promise<BidderProduct | null> {
         let query = this.repository.createQueryBuilder(BIDDER_PRODUCT_SCHEMA.TABLE_NAME)
+            .innerJoinAndSelect(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.RELATED_ONE.BIDDER}`, CLIENT_SCHEMA.TABLE_NAME)
             .where(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.COLUMNS.PRODUCT_ID} = :productId`, { productId })
             .andWhere(`${BIDDER_PRODUCT_SCHEMA.TABLE_NAME}.${BIDDER_PRODUCT_SCHEMA.COLUMNS.IS_BLOCK} = :isBlock`, { isBlock });
 

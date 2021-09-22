@@ -1,17 +1,21 @@
 import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
+import { IBidderProduct } from '@domain/interfaces/bidder-product/IBidderProduct';
 import { ICategory } from '@domain/interfaces/category/ICategory';
 import { IProduct } from '@domain/interfaces/product/IProduct';
 import { IProductDescription } from '@domain/interfaces/product/IProductDescription';
+import { IProductFavourite } from '@domain/interfaces/product/IProductFavourite';
 import { IProductImage } from '@domain/interfaces/product/IProductImage';
 import { IProductStatistic } from '@domain/interfaces/statistic/IProductStatistic';
 import { IClient } from '@domain/interfaces/user/IClient';
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { ProductDescriptionDb } from './ProductDescriptionDb';
+import { ProductFavouriteDb } from './ProductFavouriteDb';
 import { ProductImageDb } from './ProductImageDb';
 import { PRODUCT_SCHEMA } from '../../schemas/product/ProductSchema';
 import { NumericTransformer } from '../../transformers/NumericTransformer';
 import { BaseDbEntity } from '../base/BaseDBEntity';
+import { BidderProductDb } from '../bidder-product/BidderProductDb';
 import { CategoryDb } from '../category/CategoryDb';
 import { ProductStatisticDb } from '../statistic/ProductStatisticDb';
 import { ClientDb } from '../user/ClientDb';
@@ -34,6 +38,9 @@ export class ProductDb extends BaseDbEntity<string, Product> implements IProduct
     @Column('enum', { name: PRODUCT_SCHEMA.COLUMNS.STATUS, enum: ProductStatus, default: ProductStatus.DRAFT })
     status: ProductStatus;
 
+    @Column('decimal', { name: PRODUCT_SCHEMA.COLUMNS.START_PRICE, transformer: new NumericTransformer(), default: 0 })
+    startPrice: number;
+
     @Column('decimal', { name: PRODUCT_SCHEMA.COLUMNS.PRICE_NOW, transformer: new NumericTransformer() })
     priceNow: number;
 
@@ -48,6 +55,9 @@ export class ProductDb extends BaseDbEntity<string, Product> implements IProduct
 
     @Column('bool', { name: PRODUCT_SCHEMA.COLUMNS.IS_STRICTEN, default: false })
     isStricten: boolean;
+
+    @Column('bool', { name: PRODUCT_SCHEMA.COLUMNS.IS_EXTENDED_EXPIRED, default: false })
+    isExtendedExpired: boolean;
 
     /* Relationship */
 
@@ -71,6 +81,12 @@ export class ProductDb extends BaseDbEntity<string, Product> implements IProduct
 
     @OneToMany(() => ProductDescriptionDb, productDescription => productDescription.product)
     productDescriptions: IProductDescription[] | null;
+
+    @OneToMany(() => ProductFavouriteDb, productFavourite => productFavourite.product)
+    productFavourites: IProductFavourite[] | null;
+
+    @OneToMany(() => BidderProductDb, bidderProduct => bidderProduct.product)
+    bidderProducts: IBidderProduct[] | null;
 
     /* Handlers */
 

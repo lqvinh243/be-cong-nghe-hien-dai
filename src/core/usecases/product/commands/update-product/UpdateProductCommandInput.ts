@@ -10,9 +10,16 @@ export class UpdateProductCommandInput {
     @IsOptional()
     expiredAt: Date | null;
 
+    @IsOptional()
+    isExtendedExpired: boolean | null;
+
     @IsUUID()
     @IsOptional()
     categoryId: string | null;
+
+    @IsNumber()
+    @IsOptional()
+    startPrice: number | null;
 
     @IsNumber()
     @IsOptional()

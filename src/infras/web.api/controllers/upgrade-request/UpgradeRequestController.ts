@@ -14,6 +14,9 @@ import { UpdateUpgradeRequestCommandOutput } from '@usecases/upgrade-request/com
 import { FindUpgradeRequestQueryHandler } from '@usecases/upgrade-request/queries/find-upgrade-request/FindUpgradeRequestQueryHandler';
 import { FindUpgradeRequestQueryInput } from '@usecases/upgrade-request/queries/find-upgrade-request/FindUpgradeRequestQueryInput';
 import { FindUpgradeRequestQueryOutput } from '@usecases/upgrade-request/queries/find-upgrade-request/FindUpgradeRequestQueryOutput';
+import { GetByBidderIdQueryHandler } from '@usecases/upgrade-request/queries/get-by-bidder-id/GetByBidderIdQueryHandler';
+import { GetByBidderIdQueryInput } from '@usecases/upgrade-request/queries/get-by-bidder-id/GetByBidderIdQueryInput';
+import { GetByBidderIdQueryOutput } from '@usecases/upgrade-request/queries/get-by-bidder-id/GetByBidderIdQueryOutput';
 import { GetUpgradeRequestByIdQueryHandler } from '@usecases/upgrade-request/queries/get-upgrade-request-by-id/GetUpgradeRequestByIdQueryHandler';
 import { GetUpgradeRequestByIdQueryOutput } from '@usecases/upgrade-request/queries/get-upgrade-request-by-id/GetUpgradeRequestByIdQueryOutput';
 import { Authorized, Body, CurrentUser, Delete, Get, JsonController, Param, Post, Put, QueryParams } from 'routing-controllers';
@@ -27,6 +30,7 @@ export class UpgradeRequestController {
         private readonly _findUpgradeRequestQueryHandler: FindUpgradeRequestQueryHandler,
         private readonly _getUpgradeRequestByIdQueryHandler: GetUpgradeRequestByIdQueryHandler,
         private readonly _createUpgradeRequestCommandHandler: CreateUpgradeRequestCommandHandler,
+        private readonly _getByBidderIdQueryHandler: GetByBidderIdQueryHandler,
         private readonly _updateUpgradeRequestCommandHandler: UpdateUpgradeRequestCommandHandler,
         private readonly _acceptedUpgradeRequestCommandHandler: AcceptedUpgradeRequestCommandHandler,
         private readonly _deleteUpgradeRequestCommandHandler: DeleteUpgradeRequestCommandHandler
@@ -40,6 +44,15 @@ export class UpgradeRequestController {
         return await this._findUpgradeRequestQueryHandler.handle(param);
     }
 
+    @Get('/check')
+    @OpenAPI({ summary: 'Check' })
+    @ResponseSchema(CreateUpgradeRequestCommandOutput)
+    @Authorized([RoleId.BIDDER])
+    async check(@Body() param: GetByBidderIdQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<GetByBidderIdQueryOutput> {
+        param.userAuthId = userAuth.userId;
+        return await this._getByBidderIdQueryHandler.handle(param);
+    }
+
     @Get('/:id([0-9a-f-]{36})')
     @OpenAPI({ summary: 'Get upgradeRequest by id' })
     @ResponseSchema(GetUpgradeRequestByIdQueryOutput)
@@ -51,7 +64,9 @@ export class UpgradeRequestController {
     @Post('/')
     @OpenAPI({ summary: 'Create upgradeRequest' })
     @ResponseSchema(CreateUpgradeRequestCommandOutput)
-    async create(@Body() param: CreateUpgradeRequestCommandInput): Promise<CreateUpgradeRequestCommandOutput> {
+    @Authorized([RoleId.BIDDER])
+    async create(@Body() param: CreateUpgradeRequestCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<CreateUpgradeRequestCommandOutput> {
+        param.userAuthId = userAuth.userId;
         return await this._createUpgradeRequestCommandHandler.handle(param);
     }
 
@@ -59,7 +74,8 @@ export class UpgradeRequestController {
     @OpenAPI({ summary: 'Update upgradeRequest' })
     @ResponseSchema(UpdateUpgradeRequestCommandOutput)
     @Authorized([RoleId.SUPER_ADMIN])
-    async update(@Param('id') id: string, @Body() param: UpdateUpgradeRequestCommandInput): Promise<UpdateUpgradeRequestCommandOutput> {
+    async update(@Param('id') id: string, @Body() param: UpdateUpgradeRequestCommandInput, @CurrentUser() userAuth: UserAuthenticated): Promise<UpdateUpgradeRequestCommandOutput> {
+        param.userAuthId = userAuth.userId;
         return await this._updateUpgradeRequestCommandHandler.handle(id, param);
     }
 

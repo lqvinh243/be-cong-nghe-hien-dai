@@ -4,8 +4,10 @@ import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import * as validator from 'class-validator';
 import { ProductDescription } from './ProductDescription';
+import { ProductFavourite } from './ProductFavourite';
 import { ProductImage } from './ProductImage';
 import { BaseEntity } from '../base/BaseEntity';
+import { BidderProduct } from '../bidder-product/BidderProduct';
 import { Category } from '../category/Category';
 import { ProductStatistic } from '../statistic/ProductStatistic';
 import { Client } from '../user/Client';
@@ -73,6 +75,21 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
             throw new SystemError(MessageError.PARAM_INVALID, 'status');
 
         this.data.status = val;
+    }
+
+    get startPrice(): number {
+        return this.data.startPrice;
+    }
+
+    set startPrice(val: number) {
+        if (validator.isEmpty(val))
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'startPrice');
+        if (validator.isNumberString(val))
+            val = parseFloat(val.toString());
+        if (!validator.isNumber(val) || val < 0)
+            throw new SystemError(MessageError.PARAM_INVALID, 'startPrice');
+
+        this.data.startPrice = val;
     }
 
     get priceNow(): number {
@@ -150,6 +167,19 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
         this.data.isStricten = val;
     }
 
+    get isExtendedExpired(): boolean {
+        return this.data.isExtendedExpired;
+    }
+
+    set isExtendedExpired(val: boolean) {
+        if (validator.isEmpty(val))
+            throw new SystemError(MessageError.PARAM_REQUIRED, 'isExtendedExpired');
+        if (!validator.isBoolean(val))
+            throw new SystemError(MessageError.PARAM_INVALID, 'isExtendedExpired');
+
+        this.data.isExtendedExpired = val;
+    }
+
     /* Relationship */
 
     get seller(): Client | null {
@@ -174,6 +204,14 @@ export class Product extends BaseEntity<string, IProduct> implements IProduct {
 
     get productDescriptions(): ProductDescription[] | null {
         return this.data.productDescriptions && this.data.productDescriptions.map(productDescription => new ProductDescription(productDescription));
+    }
+
+    get productFavourites(): ProductFavourite[] | null {
+        return this.data.productFavourites && this.data.productFavourites.map(productFavourite => new ProductFavourite(productFavourite));
+    }
+
+    get bidderProducts(): BidderProduct[] | null {
+        return this.data.bidderProducts && this.data.bidderProducts.map(bidderProduct => new BidderProduct(bidderProduct));
     }
 
     /* Handlers */

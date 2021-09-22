@@ -1,11 +1,11 @@
 import { DataResponse } from '@shared/usecase/DataResponse';
 import { IsUUID } from 'class-validator';
 
-export class CreateBidderProductCommandOutput extends DataResponse<string> {
+export class CreateBidderProductCommandOutput extends DataResponse<boolean> {
     @IsUUID()
-    data: string;
+    data: boolean;
 
-    setData(data: string): void {
+    setData(data: boolean): void {
         this.data = data;
     }
 }

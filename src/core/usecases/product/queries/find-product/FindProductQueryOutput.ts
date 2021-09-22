@@ -5,7 +5,7 @@ import { ProductStatistic } from '@domain/entities/statistic/ProductStatistic';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { RefSchemaArray } from '@shared/decorators/RefSchema';
 import { PaginationResponse } from '@shared/usecase/PaginationResponse';
-import { IsArray, IsDate, IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsBoolean, IsDate, IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class BidderData {
     @IsString()
@@ -80,6 +80,9 @@ export class FindProductQueryData {
     @IsString()
     url: string | null;
 
+    @IsBoolean()
+    isFavourite: boolean;
+
     statistic: ProductStatictisData | null;
     category: CategoryData | null;
     bidder: BidderData | null;
@@ -94,7 +97,7 @@ export class FindProductQueryData {
         this.stepPrice = data.stepPrice;
         this.expiredAt = data.expiredAt;
         this.url = data.productImages && data.productImages.length ? data.productImages[0].url : null;
-
+        this.isFavourite = !!(data.productFavourites && data.productFavourites.length);
         this.statistic = data.productStatistic && new ProductStatictisData(data.productStatistic);
         this.category = data.category && new CategoryData(data.category);
         this.bidder = null;
