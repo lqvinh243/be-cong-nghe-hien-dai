@@ -9,4 +9,6 @@ export class FindCategoryQueryInput extends QueryPaginationRequest {
     @IsOptional()
     @IsUUID()
     parentId: string;
+
+    isIgnoreParent: string;
 }

@@ -17,11 +17,15 @@ export class FindCategoryQueryData {
     @IsOptional()
     parentId: string | null;
 
+    parent: FindCategoryQueryData | null;
+
     constructor(data: Category) {
         this.id = data.id;
         this.createdAt = data.createdAt;
         this.name = data.name;
         this.parentId = data.parentId;
+
+        this.parent = data.parent && new FindCategoryQueryData(data.parent);
     }
 }
 

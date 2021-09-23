@@ -166,6 +166,14 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
         return result.map(item => item.toEntity());
     }
 
+    async checkExistByCategoryIds(categoryIds: string[]): Promise<boolean> {
+        const query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
+            .where(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.CATEGORY_ID} IN(:...categoryIds)`, { categoryIds });
+
+        const result = await query.getOne();
+        return !!result;
+    }
+
     async getDetailById(id: string): Promise<Product | null> {
         let query = this.repository.createQueryBuilder(PRODUCT_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)

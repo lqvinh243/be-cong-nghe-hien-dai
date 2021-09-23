@@ -42,7 +42,11 @@ export class Category extends BaseEntity<string, ICategory> implements ICategory
 
         this.data.level = val;
     }
+
     /* Relationship */
+    get parent(): Category | null {
+        return this.data.parent && new Category(this.data.parent);
+    }
 
     /* Handlers */
 }

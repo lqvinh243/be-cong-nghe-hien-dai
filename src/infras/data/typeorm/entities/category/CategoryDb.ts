@@ -17,6 +17,7 @@ export class CategoryDb extends BaseDbEntity<string, Category> implements ICateg
     level: number;
 
     /* Relationship */
+    parent: ICategory | null;
 
     /* Handlers */
 

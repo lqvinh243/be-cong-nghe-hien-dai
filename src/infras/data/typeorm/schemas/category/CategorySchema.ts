@@ -11,7 +11,7 @@ export const CATEGORY_SCHEMA = {
     },
     RELATED_ONE: {
         // The field name that we're defined into entity.
-
+        PARENT: 'parent'
     },
     RELATED_MANY: {
         // The field name that we're defined into entity.

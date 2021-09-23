@@ -6,4 +6,5 @@ export interface ICategory extends IEntity<string> {
     level: number;
 
     /* Relationship */
+    parent: ICategory | null;
 }

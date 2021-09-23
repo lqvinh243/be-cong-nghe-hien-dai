@@ -14,6 +14,7 @@ export class FindCategoryQueryHandler implements QueryHandler<FindCategoryQueryI
         filter.setPagination(param.skip, param.limit);
         filter.keyword = param.keyword;
         filter.parentId = param.parentId;
+        filter.isIgnoreParent = param.isIgnoreParent !== 'true';
 
         const [categories, count] = await this._categoryRepository.findAndCount(filter);
         const result = new FindCategoryQueryOutput();

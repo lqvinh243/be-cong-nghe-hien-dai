@@ -48,6 +48,8 @@ export interface IProductRepository extends IBaseRepository<string, Product> {
 
     findProductFavouriteByIds(param: FindProductFavouriteByIdsFilter): Promise<Product[]>;
 
+    checkExistByCategoryIds(categoryIds: string[]): Promise<boolean>;
+
     getAll(statuses: ProductStatus[]): Promise<Product[]>;
 
     getDetailById(id: string): Promise<Product | null>;
