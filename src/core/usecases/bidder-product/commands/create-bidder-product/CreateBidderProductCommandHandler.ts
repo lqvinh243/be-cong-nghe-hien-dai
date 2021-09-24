@@ -81,16 +81,20 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
                 bidderId = bidderProductAuto.bidderId;
         }
 
+        const rates = await this._productFeedbackRepository.getByReceiverId(bidderId);
         if (product.isStricten) {
-            const rates = await this._productFeedbackRepository.getByReceiverId(bidderId);
-            if (rates.down && rates.up) {
-                const rate = (rates.up / rates.down) * 100;
-                if (rate < 80)
-                    throw new SystemError(MessageError.OTHER, 'You cannot bid this product!');
-            }
-            if (rates.down && !rates.up)
+            if (!rates.down && !rates.up)
+                throw new SystemError(MessageError.OTHER, 'Sản phẩm yêu cầu có đánh giá mới được đấu giá');
+        }
+
+        if (rates.down && rates.up) {
+            const rate = (rates.up / rates.down) * 100;
+            if (rate < 80)
                 throw new SystemError(MessageError.OTHER, 'You cannot bid this product!');
         }
+        if (rates.down && !rates.up)
+            throw new SystemError(MessageError.OTHER, 'You cannot bid this product!');
+
         if (!product.bidPrice || (product.bidPrice && data.price < product.bidPrice)) {
             const bidderProduct = await this._bidderProductRepository.getBiggestByProduct(data.productId);
             if (data.price - product.stepPrice < product.priceNow && bidderProduct) {
