@@ -23,10 +23,10 @@ export class CreateProductCommandInput {
     startPrice: number | null;
 
     @IsBoolean()
-    isStricten: boolean;
+    isStricten: boolean | string;
 
     @IsOptional()
-    isExtendedExpired: boolean | null;
+    isExtendedExpired: boolean | null | string;
 
     file: Express.Multer.File;
 }

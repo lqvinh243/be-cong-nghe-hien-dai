@@ -11,6 +11,7 @@ import { CommandHandler } from '@shared/usecase/CommandHandler';
 import { CreateProductStatisticCommandHandler } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandHandler';
 import { CreateProductStatisticCommandInput } from '@usecases/statistic/commands/create-product-statistic/CreateProductStatisticCommandInput';
 import { CreateClientCommandOutput } from '@usecases/user/client/commands/create-client/CreateClientCommandOutput';
+import { isBooleanString } from 'class-validator';
 import * as mime from 'mime-types';
 import { Inject, Service } from 'typedi';
 import { CreateProductCommandInput } from './CreateProductCommandInput';
@@ -52,9 +53,9 @@ export class CreateProductCommandHandler implements CommandHandler<CreateProduct
         data.bidPrice = param.bidPrice;
         data.stepPrice = param.stepPrice;
         data.expiredAt = param.expiredAt;
-        data.isStricten = param.isStricten;
+        data.isStricten = !param.isStricten || isBooleanString(param.isStricten) ? param.isStricten === 'true' : param.isStricten as boolean;
         data.status = ProductStatus.DRAFT;
-        data.isExtendedExpired = param.isExtendedExpired ?? false;
+        data.isExtendedExpired = !param.isExtendedExpired || isBooleanString(param.isExtendedExpired) ? param.isExtendedExpired === 'true' : param.isExtendedExpired as boolean;
 
         const id = await this._dbContext.getConnection().runTransaction(async queryRunner => {
             const id = await this._productRepository.create(data, queryRunner);
