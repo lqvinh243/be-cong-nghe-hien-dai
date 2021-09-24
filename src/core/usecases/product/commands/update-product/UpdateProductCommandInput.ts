@@ -1,4 +1,4 @@
-import { IsDateString, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsBoolean, IsDateString, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class UpdateProductCommandInput {
     userAuthId: string;
@@ -10,8 +10,14 @@ export class UpdateProductCommandInput {
     @IsOptional()
     expiredAt: Date | null;
 
+    @IsBoolean()
     @IsOptional()
-    isExtendedExpired: boolean | null;
+
+    isStricten: boolean | string | null;
+
+    @IsOptional()
+    @IsBoolean()
+    isExtendedExpired: boolean | null | string;
 
     @IsUUID()
     @IsOptional()

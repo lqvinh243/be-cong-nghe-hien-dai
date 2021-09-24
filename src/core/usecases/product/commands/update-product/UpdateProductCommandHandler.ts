@@ -4,6 +4,7 @@ import { IProductRepository } from '@gateways/repositories/product/IProductRepos
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import { CommandHandler } from '@shared/usecase/CommandHandler';
+import { isBooleanString } from 'class-validator';
 import { Inject, Service } from 'typedi';
 import { UpdateProductCommandInput } from './UpdateProductCommandInput';
 import { UpdateProductCommandOutput } from './UpdateProductCommandOutput';
@@ -27,8 +28,10 @@ export class UpdateProductCommandHandler implements CommandHandler<UpdateProduct
             data.stepPrice = param.stepPrice;
         if (param.expiredAt)
             data.expiredAt = new Date(param.expiredAt);
-        if (param.isExtendedExpired !== null)
-            data.isExtendedExpired = param.isExtendedExpired;
+        if (param.isExtendedExpired)
+            data.isExtendedExpired = !param.isExtendedExpired || isBooleanString(param.isExtendedExpired) ? param.isExtendedExpired === 'true' : param.isExtendedExpired as boolean;
+        if (param.isStricten)
+            data.isStricten = !param.isStricten || isBooleanString(param.isStricten) ? param.isStricten === 'true' : param.isStricten as boolean;
 
         const product = await this._productRepository.getById(id);
         if (!product || product.status !== ProductStatus.DRAFT)
