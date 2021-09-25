@@ -107,6 +107,9 @@ export class FindProductQueryData {
     @IsBoolean()
     isFavourite: boolean;
 
+    @IsBoolean()
+    isReadyCancel: boolean;
+
     statistic: ProductStatictisData | null;
     category: CategoryData | null;
     bidder: ClientData | null;
@@ -127,6 +130,7 @@ export class FindProductQueryData {
         this.category = data.category && new CategoryData(data.category);
         this.bidder = null;
         this.winner = data.winner ? new ClientData(data.winner) : null;
+        this.isReadyCancel = !!(data.productFeedbacks && data.productFeedbacks.length);
     }
 
     setBidder(data: BidderProduct): void {

@@ -2,6 +2,7 @@ import { Product } from '@domain/entities/product/Product';
 import { ProductStatus } from '@domain/enums/product/ProductStatus';
 import { IBidderProduct } from '@domain/interfaces/bidder-product/IBidderProduct';
 import { ICategory } from '@domain/interfaces/category/ICategory';
+import { IProductFeedback } from '@domain/interfaces/feed-back/IProductFeedback';
 import { IProduct } from '@domain/interfaces/product/IProduct';
 import { IProductDescription } from '@domain/interfaces/product/IProductDescription';
 import { IProductFavourite } from '@domain/interfaces/product/IProductFavourite';
@@ -17,6 +18,7 @@ import { NumericTransformer } from '../../transformers/NumericTransformer';
 import { BaseDbEntity } from '../base/BaseDBEntity';
 import { BidderProductDb } from '../bidder-product/BidderProductDb';
 import { CategoryDb } from '../category/CategoryDb';
+import { ProductFeedbackDb } from '../feed-back/ProductFeedbackDb';
 import { ProductStatisticDb } from '../statistic/ProductStatisticDb';
 import { ClientDb } from '../user/ClientDb';
 
@@ -87,6 +89,9 @@ export class ProductDb extends BaseDbEntity<string, Product> implements IProduct
 
     @OneToMany(() => BidderProductDb, bidderProduct => bidderProduct.product)
     bidderProducts: IBidderProduct[] | null;
+
+    @OneToMany(() => ProductFeedbackDb, productFeedback => productFeedback.product)
+    productFeedbacks: IProductFeedback[] | null;
 
     /* Handlers */
 

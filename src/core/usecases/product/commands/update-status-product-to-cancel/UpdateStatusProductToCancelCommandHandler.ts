@@ -30,15 +30,18 @@ export class UpdateStatusProductToCancelCommandHandler implements CommandHandler
         if (product.sellerId !== param.userAuthId)
             throw new SystemError(MessageError.ACCESS_DENIED);
         if (!product.winnerId)
-            throw new SystemError(MessageError.OTHER, 'Product not has winner!');
+            throw new SystemError(MessageError.OTHER, 'Sản phẩm không có người chiến thắng!');
 
         const data = new Product();
         data.status = ProductStatus.CANCEL;
 
         const productFeedback = await this._productFeedbackRepository.checkDataExistAndGet(product.sellerId, product.id);
         const productFeedbackData = new ProductFeedback();
+        productFeedbackData.productId = product.id;
         productFeedbackData.type = ProductFeedbackType.DOWM;
         productFeedbackData.content = 'Người thắng không thanh toán';
+        productFeedbackData.ownerId = param.userAuthId;
+        productFeedbackData.receiverId = product.winnerId;
         await this._dbContext.getConnection().runTransaction(async queryRunner => {
             if (productFeedback)
                 await this._productFeedbackRepository.update(productFeedback.id, productFeedbackData, queryRunner);

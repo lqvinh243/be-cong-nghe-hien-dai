@@ -84,6 +84,9 @@ export class BidderData {
 }
 
 export class ClientData {
+    @IsUUID()
+    id: string;
+
     @IsString()
     firstName: string;
 
@@ -102,6 +105,7 @@ export class ClientData {
     rate: number;
 
     constructor(data: Client) {
+        this.id = data.id;
         this.firstName = data.firstName;
         this.lastName = data.lastName;
         this.email = data.email;

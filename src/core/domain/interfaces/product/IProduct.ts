@@ -5,6 +5,7 @@ import { IProductImage } from './IProductImage';
 import { IEntity } from '../base/IEntity';
 import { IBidderProduct } from '../bidder-product/IBidderProduct';
 import { ICategory } from '../category/ICategory';
+import { IProductFeedback } from '../feed-back/IProductFeedback';
 import { IProductStatistic } from '../statistic/IProductStatistic';
 import { IClient } from '../user/IClient';
 
@@ -31,4 +32,5 @@ export interface IProduct extends IEntity<string> {
     productDescriptions: IProductDescription[] | null;
     productFavourites: IProductFavourite[] | null;
     bidderProducts: IBidderProduct[] | null;
+    productFeedbacks: IProductFeedback[] | null;
 }

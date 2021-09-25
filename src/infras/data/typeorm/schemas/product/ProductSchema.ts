@@ -30,6 +30,7 @@ export const PRODUCT_SCHEMA = {
         PRODUCT_IMAGE: 'productImages',
         PRODUCT_DESCRIPTION: 'productDescriptions',
         PRODUCT_FAVOURITE: 'productFavourites',
-        BIDDER_PRODUCT: 'bidderProducts'
+        BIDDER_PRODUCT: 'bidderProducts',
+        PRODUCT_FEEDBACK: 'productFeedbacks'
     }
 };

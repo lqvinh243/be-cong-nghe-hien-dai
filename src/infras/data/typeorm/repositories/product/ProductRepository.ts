@@ -7,6 +7,7 @@ import { Service } from 'typedi';
 import { ProductDb } from '../../entities/product/ProductDb';
 import { BIDDER_PRODUCT_SCHEMA } from '../../schemas/bidder-product/BidderProductSchema';
 import { CATEGORY_SCHEMA } from '../../schemas/category/CategorySchema';
+import { PRODUCT_FEEDBACK_SCHEMA } from '../../schemas/feed-back/ProductFeedbackSchema';
 import { PRODUCT_DESCRIPTION_SCHEMA } from '../../schemas/product/ProductDescriptionSchema';
 import { PRODUCT_FAVOURITE_SCHEMA } from '../../schemas/product/ProductFavouriteSchema';
 import { PRODUCT_IMAGE_SCHEMA } from '../../schemas/product/ProductImageSchema';
@@ -128,6 +129,7 @@ export class ProductRepository extends BaseRepository<string, Product, ProductDb
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.CATEGORY}`, CATEGORY_SCHEMA.TABLE_NAME)
             .innerJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.PRODUCT_STATISTIC}`, PRODUCT_STATISTIC_SCHEMA.TABLE_NAME)
             .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_ONE.WINNER}`, CLIENT_SCHEMA.TABLE_NAME)
+            .leftJoinAndSelect(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.RELATED_MANY.PRODUCT_FEEDBACK}`, PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME, `${PRODUCT_FEEDBACK_SCHEMA.TABLE_NAME}.${PRODUCT_FEEDBACK_SCHEMA.COLUMNS.OWNER_ID} = '${param.sellerId}'`)
             .where(`${PRODUCT_SCHEMA.TABLE_NAME}.${PRODUCT_SCHEMA.COLUMNS.SELLER_ID} = :sellerId`, { sellerId: param.sellerId });
 
         if (param.statuses && param.statuses.length)
