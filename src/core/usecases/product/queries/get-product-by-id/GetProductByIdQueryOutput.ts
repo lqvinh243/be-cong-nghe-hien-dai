@@ -136,6 +136,9 @@ export class GetProductByIdQueryData {
     status: ProductStatus;
 
     @IsNumber()
+    startPrice: number;
+
+    @IsNumber()
     priceNow: number;
 
     @IsNumber()
@@ -172,6 +175,7 @@ export class GetProductByIdQueryData {
         this.createdAt = data.createdAt;
         this.name = data.name;
         this.status = data.status;
+        this.startPrice = data.startPrice;
         this.priceNow = data.priceNow;
         this.bidPrice = data.bidPrice;
         this.stepPrice = data.stepPrice;
