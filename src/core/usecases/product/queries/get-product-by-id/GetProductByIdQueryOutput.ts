@@ -45,10 +45,14 @@ export class ProductDescriptionData {
 }
 
 export class CategoryData {
+    @IsUUID()
+    id: string;
+
     @IsString()
     name: string;
 
     constructor(data: Category) {
+        this.id = data.id;
         this.name = data.name;
     }
 }
