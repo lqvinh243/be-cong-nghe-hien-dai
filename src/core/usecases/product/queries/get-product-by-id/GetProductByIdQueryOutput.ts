@@ -166,6 +166,9 @@ export class GetProductByIdQueryData {
     @IsBoolean()
     isExtendedExpired: boolean;
 
+    @IsBoolean()
+    isStricten: boolean;
+
     seller: ClientData | null;
     bidder: BidderData | null;
     winner: ClientData | null;
@@ -188,6 +191,7 @@ export class GetProductByIdQueryData {
         this.winnerId = data.winnerId;
         this.rateSeller = null;
         this.isExtendedExpired = data.isExtendedExpired;
+        this.isStricten = data.isStricten;
 
         this.seller = data.seller && new ClientData(data.seller);
         this.bidder = null;
