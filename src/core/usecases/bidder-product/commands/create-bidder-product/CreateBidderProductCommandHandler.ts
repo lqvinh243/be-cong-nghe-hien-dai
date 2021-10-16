@@ -144,7 +144,7 @@ export class CreateBidderProductCommandHandler implements CommandHandler<CreateB
             socketResult.price = productData.priceNow;
 
             if (product.isExtendedExpired) {
-                const time = new Date().getTime() - new Date(product.expiredAt).getTime();
+                const time = new Date(product.expiredAt).getTime() - new Date().getTime();
                 if ((time / 1000) <= 300)
                     productData.expiredAt = addMinutes(productData.expiredAt, 10);
             }
