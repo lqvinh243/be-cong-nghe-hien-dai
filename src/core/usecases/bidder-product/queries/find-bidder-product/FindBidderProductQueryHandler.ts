@@ -22,7 +22,7 @@ export class FindBidderProductQueryHandler implements QueryHandler<FindBidderPro
         filter.keyword = param.keyword;
 
         const product = await this._productRepository.getById(param.productId);
-        if (!product || product.sellerId !== param.userAuthId)
+        if (!product)
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
         const [bidderProducts, count] = await this._bidderProductRepository.findAndCount(filter);
