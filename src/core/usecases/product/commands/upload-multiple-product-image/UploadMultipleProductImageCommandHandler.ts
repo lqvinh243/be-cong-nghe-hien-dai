@@ -50,10 +50,11 @@ export class UploadMultipleProductImageCommandHandler implements CommandHandler<
             data.url = imagePath;
             data.isPrimary = false;
 
-            const hasSucceed = await this._storageService.upload(imagePath, file.buffer, { mimetype: file.mimetype, size: file.size });
-            // .finally(() => removeFile(file.path));
-            if (!hasSucceed)
-                throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');
+            // const hasSucceed = await this._storageService.upload(imagePath, file.buffer, { mimetype: file.mimetype, size: file.size });
+            // // .finally(() => removeFile(file.path));
+            // if (!hasSucceed)
+            //     throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');
+            data.url = await this._storageService.uploadGetUrl(file.buffer);
 
             productImages.push(data);
         }

@@ -54,6 +54,11 @@ export class StorageConsoleFactory implements IStorageProvider {
         return true;
     }
 
+    async uploadGetUrl(buffer: Buffer): Promise<string> {
+        this._logService.info('StorageService.upload', { buffer });
+        return 'url';
+    }
+
     async download(bucketName: string, objectName: string): Promise<Buffer> {
         this._logService.info('StorageService.download', { bucketName, objectName });
         return Promise.resolve(Buffer.from('Logging'));

@@ -1,9 +1,7 @@
 import { IProductImage } from '@domain/interfaces/product/IProductImage';
-import { IStorageService } from '@gateways/services/IStorageService';
 import { MessageError } from '@shared/exceptions/message/MessageError';
 import { SystemError } from '@shared/exceptions/SystemError';
 import * as validator from 'class-validator';
-import Container from 'typedi';
 import { Product } from './Product';
 import { BaseEntity } from '../base/BaseEntity';
 
@@ -34,8 +32,9 @@ export class ProductImage extends BaseEntity<string, IProductImage> implements I
     }
 
     get url(): string {
-        const storageService = Container.get<IStorageService>('storage.service');
-        return storageService.mapUrl(this.data.url);
+        // const storageService = Container.get<IStorageService>('storage.service');
+        // return storageService.mapUrl(this.data.url);
+        return this.data.url;
     }
 
     set url(val: string) {

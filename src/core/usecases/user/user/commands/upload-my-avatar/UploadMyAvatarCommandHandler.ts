@@ -36,12 +36,13 @@ export class UploadMyAvatarCommandHandler extends CommandHandler<UploadMyAvatarC
         if (!user)
             throw new SystemError(MessageError.DATA_NOT_FOUND);
 
-        let hasSucceed = await this._storageService.upload(avatarPath, file.buffer, { mimetype: file.mimetype, size: file.size });
-        // .finally(() => removeFile(file.path));
-        if (!hasSucceed)
-            throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');
+        // let hasSucceed = await this._storageService.upload(avatarPath, file.buffer, { mimetype: file.mimetype, size: file.size });
+        // // .finally(() => removeFile(file.path));
+        // if (!hasSucceed)
+        //     throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');
+        data.avatar = await this._storageService.uploadGetUrl(file.buffer);
 
-        hasSucceed = await this._userRepository.update(id, data);
+        await this._userRepository.update(id, data);
         const result = new UploadMyAvatarCommandOutput();
         result.setData(data.avatar);
         return result;

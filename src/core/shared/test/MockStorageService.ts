@@ -10,6 +10,9 @@ export const mockStorageService = (): IStorageService => {
         async upload() {
             return true;
         },
+        async uploadGetUrl() {
+            return '';
+        },
         async download() {
             return Buffer.from('test');
         },

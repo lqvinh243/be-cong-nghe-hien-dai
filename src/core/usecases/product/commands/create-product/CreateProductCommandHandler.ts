@@ -68,10 +68,11 @@ export class CreateProductCommandHandler implements CommandHandler<CreateProduct
             productImage.url = imagePath;
             productImage.isPrimary = true;
 
-            const hasSucceed = await this._storageService.upload(imagePath, file.buffer, { mimetype: file.mimetype, size: file.size });
-            // .finally(() => removeFile(file.path));
-            if (!hasSucceed)
-                throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');
+            // const hasSucceed = await this._storageService.upload(imagePath, file.buffer, { mimetype: file.mimetype, size: file.size });
+            // // .finally(() => removeFile(file.path));
+            // if (!hasSucceed)
+            //     throw new SystemError(MessageError.PARAM_CANNOT_UPLOAD, 'avatar');
+            productImage.url = await this._storageService.uploadGetUrl(file.buffer);
 
             await this._productImageRepository.create(productImage, queryRunner);
             return id;

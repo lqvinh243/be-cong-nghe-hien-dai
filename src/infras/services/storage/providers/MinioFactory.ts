@@ -88,6 +88,14 @@ export class MinioFactory implements IStorageProvider {
         return this._client.putObject(bucketName, objectName, stream, metaData).then(result => !!result);
     }
 
+    uploadGetUrl(buffer: Buffer): Promise<string> {
+        return new Promise((resolve) => {
+            // eslint-disable-next-line no-console
+            console.log(buffer);
+            resolve('true');
+        });
+    }
+
     download(bucketName: string, objectName: string): Promise<Buffer> {
         return new Promise((resolve, reject) => {
             this._client.getObject(bucketName, objectName, (err, dataStream) => {

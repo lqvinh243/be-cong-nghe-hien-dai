@@ -14,7 +14,8 @@ export enum StorageProvider {
     CONSOLE = 1,
     MINIO = 2,
     AWS_S3 = 3,
-    GOOGLE_STORAGE = 4
+    GOOGLE_STORAGE = 4,
+    CLOUDINARY = 5
 }
 
 export enum MailProvider {

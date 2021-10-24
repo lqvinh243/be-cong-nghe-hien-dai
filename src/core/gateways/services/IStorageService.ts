@@ -17,6 +17,8 @@ export interface IStorageService {
     upload(urlPath: string, buffer: Buffer): Promise<boolean>;
     upload(urlPath: string, buffer: Buffer, options: IStorageUploadOption): Promise<boolean>;
 
+    uploadGetUrl(buffer: Buffer): Promise<string>;
+
     download(urlPath: string): Promise<Buffer>;
 
     delete(urlPath: string): Promise<boolean>;

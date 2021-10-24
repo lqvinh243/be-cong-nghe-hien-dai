@@ -91,6 +91,10 @@ export const GOOGLE_APPLICATION_CREDENTIALS: string = process.env.GOOGLE_APPLICA
 export const GOOGLE_STORAGE_LOCATION: string = process.env.GOOGLE_STORAGE_LOCATION ?? '';
 export const GOOGLE_STORAGE_CLASS: string = process.env.GOOGLE_STORAGE_CLASS ?? '';
 
+export const CLOUDINARY_CLOUD_NAME: string = process.env.CLOUDINARY_CLOUD_NAME ?? '';
+export const CLOUDINARY_API_KEY: string = process.env.CLOUDINARY_API_KEY ?? '';
+export const CLOUDINARY_API_SECRET: string = process.env.CLOUDINARY_API_SECRET ?? '';
+
 // MAIL SERVICE
 
 export const MAIL_PROVIDER: number = process.env.MAIL_PROVIDER ? Number(process.env.MAIL_PROVIDER) : MailProvider.CONSOLE;
