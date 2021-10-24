@@ -39,7 +39,7 @@ export class BidderProductController {
     @Get('/')
     @OpenAPI({ summary: 'Find bidderProducts' })
     @ResponseSchema(FindBidderProductQueryOutput)
-    @Authorized([RoleId.SELLER])
+    @Authorized([RoleId.SELLER, RoleId.BIDDER])
     async find(@QueryParams() param: FindBidderProductQueryInput, @CurrentUser() userAuth: UserAuthenticated): Promise<FindBidderProductQueryOutput> {
         param.userAuthId = userAuth.userId;
         return await this._findBidderProductQueryHandler.handle(param);

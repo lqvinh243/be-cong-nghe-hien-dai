@@ -8,6 +8,9 @@ import { PaginationResponse } from '@shared/usecase/PaginationResponse';
 import { IsArray, IsBoolean, IsDate, IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class ClientData {
+    @IsUUID()
+    id: string;
+
     @IsString()
     firstName: string | null;
 
@@ -23,6 +26,7 @@ export class ClientData {
     avatar: string | null;
 
     constructor(data: Client) {
+        this.id = data.id;
         this.firstName = data.firstName;
         this.lastName = data.lastName;
         this.email = data.email;
