@@ -28,7 +28,7 @@ export class ResetPasswordByEmailCommandHandler extends CommandHandler<ResetPass
         if (!auth || !auth.user)
             throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'account authorization');
 
-        if (auth.user.roleId === RoleId.BIDDER) {
+        if (auth.user.roleId === RoleId.BIDDER || auth.user.roleId === RoleId.SELLER) {
             const client = await this._clientRepository.getById(auth.userId);
             if (!client)
                 throw new SystemError(MessageError.PARAM_NOT_EXISTS, 'account');
