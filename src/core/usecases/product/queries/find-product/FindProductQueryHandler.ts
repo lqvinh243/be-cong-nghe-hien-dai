@@ -20,6 +20,7 @@ export class FindProductQueryHandler implements QueryHandler<FindProductQueryInp
         filter.keyword = param.keyword;
         filter.statuses = [ProductStatus.PROCESSS];
         filter.sortType = param.sortType;
+        filter.categoryId = param.categoryId;
 
         const [products, count] = await this._productRepository.findAndCount(filter);
         const productIds = products.map(item => item.id);
